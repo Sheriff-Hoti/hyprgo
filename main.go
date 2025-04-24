@@ -7,8 +7,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/exec"
 
+	"github.com/BourgeoisBear/rasterm"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -107,16 +107,56 @@ func (m model) View() string {
 	return s
 }
 
+func getTerminalSize() (width, height int, err error) {
+
+	// fallback when piping to a file!
+	return 10, 6, nil // VT100 terminal size
+}
+
+func getFile(fpath string) (*os.File, int64, error) {
+
+	pF, E := os.Open(fpath)
+	if E != nil {
+		return nil, 0, E
+	}
+
+	fInf, E := pF.Stat()
+	if E != nil {
+		pF.Close()
+		return nil, 0, E
+	}
+
+	return pF, fInf.Size(), nil
+}
+
 func main() {
+
+	fIn, _, err := getFile("./test.png")
+	if err != nil {
+		println(err)
+	}
 	// p := tea.NewProgram(initialModel())
 	// if _, err := p.Run(); err != nil {
 	// 	fmt.Printf("Alas, there's been an error: %v", err)
 	// 	os.Exit(1)
 	// }
+	// tx, ty, _ := getTerminalSize()
 
-	cmd := exec.Command("pixterm", "-w", "80", "-h", "40", "example.jpg")
-	cmd.Stdout = os.Stdout
-	cmd.Run()
+	// // sfy, sfx := ansimage.BlockSizeY, ansimage.BlockSizeX
+
+	// var pix *ansimage.ANSImage
+
+	// pix, _ = ansimage.NewScaledFromFile("test.png", 25*ty, 25*tx, color.Black, 1, ansimage.DitheringWithBlocks)
+
+	// ansimage.ClearTerminal()
+
+	// pix.DrawExt(false, false)
+	// print(rasterm.IsKittyCapable())
+
+	fmt.Println("\nKitty PNG Inline")
+	//this totally works
+	eI := rasterm.KittyCopyPNGInline(os.Stdout, fIn, rasterm.KittyImgOpts{})
+	print(eI)
 
 }
 
