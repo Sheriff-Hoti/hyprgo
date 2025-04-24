@@ -1,9 +1,24 @@
 package tui
 
 import (
-	"fmt"
-
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+)
+
+var (
+	modelStyle = lipgloss.NewStyle().
+			Width(15).
+			Height(5).
+			Align(lipgloss.Center, lipgloss.Center).
+			BorderStyle(lipgloss.HiddenBorder())
+	focusedModelStyle = lipgloss.NewStyle().
+				Width(15).
+				Height(5).
+				Align(lipgloss.Center, lipgloss.Center).
+				BorderStyle(lipgloss.NormalBorder()).
+				BorderForeground(lipgloss.Color("69"))
+	helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
+	choices   = []string{"Buy carrots", "Buy celery", "Buy kohlrabi"}
 )
 
 type model struct {
@@ -14,7 +29,7 @@ type model struct {
 
 func InitialModel() model {
 	return model{
-		choices:  []string{"Buy carrots", "Buy celery", "Buy kohlrabi"},
+		choices:  choices,
 		selected: 0,
 	}
 }
@@ -67,27 +82,49 @@ func (m model) View() string {
 	// The header
 	s := "What should we buy at the market?\n\n"
 
-	// Iterate over our choices
-	for i, choice := range m.choices {
+	ch := make([]string, 0, 10)
 
-		// Is the cursor pointing at this choice?
-		cursor := " " // no cursor
-		if m.cursor == i {
-			cursor = ">" // cursor!
-		}
-
-		// Is this choice selected?
-		checked := " " // not selected
-		if i == m.selected {
-			checked = "x" // selected!
-		}
-
-		// Render the row
-		s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice)
+	for _, val := range choices {
+		ch = append(ch, focusedModelStyle.Render(val))
 	}
 
+	t := make([]string, 0, 10)
+
+	t = append(t, lipgloss.JoinHorizontal(0.2, append(ch, "/n/n")...))
+	t = append(t, lipgloss.JoinHorizontal(0.2, append(ch, "/n/n")...))
+	t = append(t, lipgloss.JoinHorizontal(0.2, append(ch, "/n/n")...))
+
+	s += lipgloss.JoinVertical(lipgloss.Top, t...)
+	// Iterate over our choices
+	// for i, _ := range m.choices {
+
+	// 	// Is the cursor pointing at this choice?
+	// 	// cursor := " " // no cursor
+	// 	// if m.cursor == i {
+	// 	// 	cursor = ">" // cursor!
+	// 	// }
+
+	// 	// Is this choice selected?
+	// 	// checked := " " // not selected
+	// 	// if i == m.selected {
+	// 	// 	checked = "x" // selected!
+	// 	// }
+
+	// 	if i == m.selected {
+	// 		s += lipgloss.JoinHorizontal(lipgloss.Top, focusedModelStyle.Render("%4s"))
+
+	// 	} else {
+	// 		s += lipgloss.JoinHorizontal(lipgloss.Top, modelStyle.Render("%4s"))
+
+	// 	}
+
+	// 	// Render the row
+	// 	// s += fmt.Sprintf("%s", cursor)
+	// }
+
+	s += helpStyle.Render("\ntab: focus next • n: new %s • q: exit\n")
+
 	// The footer
-	s += "\nPress q to quit.\n"
 
 	// Send the UI for rendering
 	return s
