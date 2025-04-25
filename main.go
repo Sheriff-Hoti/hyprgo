@@ -21,4 +21,7 @@ func main() {
 	}
 }
 
-//use catimg
+//use icat
+
+// kitten icat --align=left --place=20x20@5x10 ./img/night-sky.jpg &&
+// kitten icat --align=left --place=20x20@5x5 ./img/test.jpg

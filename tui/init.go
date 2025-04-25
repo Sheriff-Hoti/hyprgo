@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"log"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -88,13 +90,13 @@ func (m model) View() string {
 		ch = append(ch, focusedModelStyle.Render(val))
 	}
 
-	t := make([]string, 0, 10)
+	s += lipgloss.JoinHorizontal(lipgloss.Top, ch...)
+	log.Print("hello")
 
-	t = append(t, lipgloss.JoinHorizontal(0.2, append(ch, "/n/n")...))
-	t = append(t, lipgloss.JoinHorizontal(0.2, append(ch, "/n/n")...))
-	t = append(t, lipgloss.JoinHorizontal(0.2, append(ch, "/n/n")...))
+	s += lipgloss.JoinHorizontal(lipgloss.Top, ch...)
 
-	s += lipgloss.JoinVertical(lipgloss.Top, t...)
+	s += lipgloss.JoinHorizontal(lipgloss.Top, ch...)
+
 	// Iterate over our choices
 	// for i, _ := range m.choices {
 
