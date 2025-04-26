@@ -27,12 +27,16 @@ type model struct {
 	choices  []string // items on the to-do list
 	cursor   int      // which to-do list item our cursor is pointing at
 	selected int      // which to-do items are selected
+	termW    uint32
+	termH    uint32
 }
 
 func InitialModel() model {
 	return model{
 		choices:  choices,
 		selected: 0,
+		termW:    0,
+		termH:    0,
 	}
 }
 
