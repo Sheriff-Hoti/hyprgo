@@ -1,8 +1,7 @@
 package tui
 
 import (
-	"log"
-
+	"github.com/Sheriff-Hoti/hyprgo/pkg"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -20,23 +19,21 @@ var (
 				BorderStyle(lipgloss.NormalBorder()).
 				BorderForeground(lipgloss.Color("69"))
 	helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
-	choices   = []string{"Buy carrots", "Buy celery", "Buy kohlrabi"}
+	choices   = []string{"1", "2", "3", "4", "5", "6", "7", "8"}
 )
 
 type model struct {
-	choices  []string // items on the to-do list
-	cursor   int      // which to-do list item our cursor is pointing at
-	selected int      // which to-do items are selected
-	termW    uint32
-	termH    uint32
+	choices   []string // items on the to-do list
+	cursor    int      // which to-do list item our cursor is pointing at
+	selected  int      // which to-do items are selected
+	term_info *pkg.TerminalInfo
 }
 
 func InitialModel() model {
 	return model{
-		choices:  choices,
-		selected: 0,
-		termW:    0,
-		termH:    0,
+		choices:   choices,
+		selected:  0,
+		term_info: nil,
 	}
 }
 
@@ -76,6 +73,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// the selected state for the item that the cursor is pointing at.
 		case "enter", " ":
 			m.selected = m.cursor
+			//here we need to make the change to update the wallpaper into ./local/.share or smth
+			//config file prolly ./config/hypr/hyprgo.conf
 		}
 	}
 
@@ -86,47 +85,24 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	// The header
-	s := "What should we buy at the market?\n\n"
+	// s := "What should we buy at the market?\n\n"
+	s := ""
 
-	ch := make([]string, 0, 10)
+	accumulator := make([]string, 0, len(choices))
 
-	for _, val := range choices {
-		ch = append(ch, focusedModelStyle.Render(val))
+	for idx, val := range m.choices {
+		if idx == m.cursor {
+			accumulator = append(accumulator, focusedModelStyle.Render(val))
+		} else {
+			accumulator = append(accumulator, modelStyle.Render(val))
+
+		}
+		if (idx+1)%3 == 0 || idx == len(m.choices)-1 {
+			s += lipgloss.JoinHorizontal(lipgloss.Top, accumulator...)
+			s += "\n"
+			accumulator = make([]string, 0, len(choices))
+		}
 	}
-
-	s += lipgloss.JoinHorizontal(lipgloss.Top, ch...)
-	log.Print("hello")
-
-	s += lipgloss.JoinHorizontal(lipgloss.Top, ch...)
-
-	s += lipgloss.JoinHorizontal(lipgloss.Top, ch...)
-
-	// Iterate over our choices
-	// for i, _ := range m.choices {
-
-	// 	// Is the cursor pointing at this choice?
-	// 	// cursor := " " // no cursor
-	// 	// if m.cursor == i {
-	// 	// 	cursor = ">" // cursor!
-	// 	// }
-
-	// 	// Is this choice selected?
-	// 	// checked := " " // not selected
-	// 	// if i == m.selected {
-	// 	// 	checked = "x" // selected!
-	// 	// }
-
-	// 	if i == m.selected {
-	// 		s += lipgloss.JoinHorizontal(lipgloss.Top, focusedModelStyle.Render("%4s"))
-
-	// 	} else {
-	// 		s += lipgloss.JoinHorizontal(lipgloss.Top, modelStyle.Render("%4s"))
-
-	// 	}
-
-	// 	// Render the row
-	// 	// s += fmt.Sprintf("%s", cursor)
-	// }
 
 	s += helpStyle.Render("\ntab: focus next • n: new %s • q: exit\n")
 
