@@ -1,8 +1,6 @@
 package tui
 
 import (
-	"fmt"
-
 	"github.com/Sheriff-Hoti/hyprgo/pkg"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -10,16 +8,22 @@ import (
 
 var (
 	modelStyle = lipgloss.NewStyle().
-			Width(15).
+			Width(20).
 			Height(5).
 			Align(lipgloss.Center, lipgloss.Center).
 			BorderStyle(lipgloss.HiddenBorder())
 	focusedModelStyle = lipgloss.NewStyle().
-				Width(15).
+				Width(20).
 				Height(5).
 				Align(lipgloss.Center, lipgloss.Center).
 				BorderStyle(lipgloss.NormalBorder()).
 				BorderForeground(lipgloss.Color("69"))
+	selectedModelStyle = lipgloss.NewStyle().
+				Width(20).
+				Height(5).
+				Align(lipgloss.Center, lipgloss.Center).
+				BorderStyle(lipgloss.NormalBorder()).
+				BorderForeground(lipgloss.Color("100"))
 	helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 	choices   = []string{"1", "2", "3", "4", "5", "6", "7", "8"}
 )
@@ -110,13 +114,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 	// The header
 	// s := "What should we buy at the market?\n\n"
-	s := fmt.Sprintf("row num:%v, col num:%v", m.row_num, m.col_num)
+	s := ""
 
 	accumulator := make([]string, 0, len(choices))
 
 	for idx, val := range m.choices {
 		if idx == m.cursor {
 			accumulator = append(accumulator, focusedModelStyle.Render(val))
+		} else if idx == m.selected {
+			accumulator = append(accumulator, selectedModelStyle.Render(val))
 		} else {
 			accumulator = append(accumulator, modelStyle.Render(val))
 

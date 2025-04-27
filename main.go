@@ -26,6 +26,5 @@ func main() {
 }
 
 //use icat
-
-// kitten icat --align=left --place=20x20@5x10 ./img/night-sky.jpg &&
-// kitten icat --align=left --place=20x20@5x5 ./img/test.jpg
+//kitten icat --stdin=no --align=left --place=20x20@1x3 ./img/night-sky.jpg
+//&& kitten icat --stdin=no --align=left --place=20x20@1x10 ./img/test.jpg
