@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"fmt"
+
 	"github.com/Sheriff-Hoti/hyprgo/pkg"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -27,6 +29,8 @@ type model struct {
 	cursor    int      // which to-do list item our cursor is pointing at
 	selected  int      // which to-do items are selected
 	term_info *pkg.TerminalInfo
+	row_num   int
+	col_num   int
 }
 
 func InitialModel() model {
@@ -34,6 +38,14 @@ func InitialModel() model {
 		choices:   choices,
 		selected:  0,
 		term_info: nil,
+		row_num: (len(choices) / 3) + func() int {
+			if len(choices)%3 == 0 {
+				return 0
+			}
+			return 1
+		}(),
+
+		col_num: 3,
 	}
 }
 
@@ -59,12 +71,24 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// The "up" and "k" keys move the cursor up
 		case "up", "k":
+			if (m.cursor > 0) && (m.cursor-m.col_num+1 > 0) {
+				m.cursor -= m.col_num
+			}
+
+		// The "down" and "j" keys move the cursor down
+		case "down", "j":
+			if (m.cursor < len(m.choices)-1) && (m.cursor+m.col_num < len(m.choices)) {
+				m.cursor += m.col_num
+			}
+
+			// The "up" and "k" keys move the cursor up
+		case "left", "h":
 			if m.cursor > 0 {
 				m.cursor--
 			}
 
 		// The "down" and "j" keys move the cursor down
-		case "down", "j":
+		case "right", "l":
 			if m.cursor < len(m.choices)-1 {
 				m.cursor++
 			}
@@ -86,7 +110,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 	// The header
 	// s := "What should we buy at the market?\n\n"
-	s := ""
+	s := fmt.Sprintf("row num:%v, col num:%v", m.row_num, m.col_num)
 
 	accumulator := make([]string, 0, len(choices))
 

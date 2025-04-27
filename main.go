@@ -14,6 +14,10 @@ import (
 // dependencies.
 
 func main() {
+
+	//first read the config then start rendering images
+	//  then start the tea program
+
 	p := tea.NewProgram(tui.InitialModel())
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
