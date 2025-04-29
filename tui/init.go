@@ -8,19 +8,19 @@ import (
 
 var (
 	modelStyle = lipgloss.NewStyle().
-			Width(20).
-			Height(5).
+			Width(21).
+			Height(6).
 			Align(lipgloss.Center, lipgloss.Center).
 			BorderStyle(lipgloss.HiddenBorder())
 	focusedModelStyle = lipgloss.NewStyle().
-				Width(20).
-				Height(5).
+				Width(21).
+				Height(6).
 				Align(lipgloss.Center, lipgloss.Center).
 				BorderStyle(lipgloss.NormalBorder()).
 				BorderForeground(lipgloss.Color("69"))
 	selectedModelStyle = lipgloss.NewStyle().
-				Width(20).
-				Height(5).
+				Width(21).
+				Height(6).
 				Align(lipgloss.Center, lipgloss.Center).
 				BorderStyle(lipgloss.NormalBorder()).
 				BorderForeground(lipgloss.Color("100"))
@@ -53,8 +53,6 @@ func InitialModel() model {
 	}
 }
 
-// here we ll need to read the images and parse them to kitty image
-// and also to read configs from config file
 func (m model) Init() tea.Cmd {
 	// Just return `nil`, which means "no I/O right now, please."
 	return nil
@@ -127,7 +125,7 @@ func (m model) View() string {
 			accumulator = append(accumulator, modelStyle.Render(val))
 
 		}
-		if (idx+1)%3 == 0 || idx == len(m.choices)-1 {
+		if (idx+1)%m.col_num == 0 || idx == len(m.choices)-1 {
 			s += lipgloss.JoinHorizontal(lipgloss.Top, accumulator...)
 			s += "\n"
 			accumulator = make([]string, 0, len(choices))

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Sheriff-Hoti/hyprgo/consts"
+	"github.com/Sheriff-Hoti/hyprgo/pkg"
 	"github.com/Sheriff-Hoti/hyprgo/tui"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -13,10 +15,37 @@ import (
 // You may also need to run `go mod tidy` to download bubbletea and its
 // dependencies.
 
+func RenderImages(filenames []string) {
+	for idx, filename := range filenames {
+		pkg.IcatCmdHalder(pkg.ICatOptions{
+			Place: pkg.Place{
+				Width:  consts.ICAT_IMAGE_WIDTH,
+				Height: consts.ICAT_IMAGE_HEIGHT,
+				Top:    consts.ICAT_IMAGE_TOP_OFFSET + ((idx / consts.CELL_COLS) * 8),
+				Left:   consts.ICAT_IMAGE_LEFT_OFFSET + ((idx % consts.CELL_COLS) * (consts.ICAT_IMAGE_WIDTH + 3)),
+			},
+			Extra_args:     []string{"--z-index=--1"},
+			Scale_up:       true,
+			Wallpaper_path: filename,
+		})
+	}
+}
+
 func main() {
 
 	//first read the config then start rendering images
 	//  then start the tea program
+
+	filenames, filenames_error := pkg.GetWallpapers("./img")
+
+	if filenames_error != nil {
+		fmt.Println("Error:", filenames_error)
+		os.Exit(1)
+	}
+
+	RenderImages(filenames)
+
+	fmt.Print("\033[H")
 
 	p := tea.NewProgram(tui.InitialModel())
 	if _, err := p.Run(); err != nil {
