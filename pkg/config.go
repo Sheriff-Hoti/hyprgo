@@ -66,6 +66,7 @@ func ReadConfigFile() (*Config, error) {
 
 	for scanner.Scan() {
 		log.Print(scanner.Text())
+
 	}
 
 	if err := scanner.Err(); err != nil {

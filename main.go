@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/Sheriff-Hoti/hyprgo/consts"
 	"github.com/Sheriff-Hoti/hyprgo/pkg"
 )
@@ -30,8 +28,7 @@ func RenderImages(filenames []string) {
 
 func main() {
 
-	_, err := pkg.ReadConfigFile()
-	log.Print(err)
+	pkg.ReadConfigFile()
 	//first read the config then start rendering images
 	//  then start the tea program
 
