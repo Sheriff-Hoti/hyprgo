@@ -25,7 +25,6 @@ var (
 				BorderStyle(lipgloss.NormalBorder()).
 				BorderForeground(lipgloss.Color("100"))
 	helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
-	choices   = []string{"1", "2", "3", "4", "5", "6", "7", "8"}
 )
 
 type model struct {
@@ -37,10 +36,10 @@ type model struct {
 	col_num   int
 }
 
-func InitialModel() model {
+func InitialModel(choices []string, selected int) model {
 	return model{
 		choices:   choices,
-		selected:  0,
+		selected:  selected,
 		term_info: nil,
 		row_num: (len(choices) / 3) + func() int {
 			if len(choices)%3 == 0 {
@@ -99,6 +98,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// the selected state for the item that the cursor is pointing at.
 		case "enter", " ":
 			m.selected = m.cursor
+			sway := pkg.SwayBg{}
+			sway.SetImage(m.choices[0])
 			//here we need to make the change to update the wallpaper into ./local/.share or smth
 			//config file prolly ./config/hypr/hyprgo.conf
 		}
@@ -114,7 +115,7 @@ func (m model) View() string {
 	// s := "What should we buy at the market?\n\n"
 	s := ""
 
-	accumulator := make([]string, 0, len(choices))
+	accumulator := make([]string, 0, len(m.choices))
 
 	for idx, val := range m.choices {
 		if idx == m.cursor {
@@ -128,7 +129,7 @@ func (m model) View() string {
 		if (idx+1)%m.col_num == 0 || idx == len(m.choices)-1 {
 			s += lipgloss.JoinHorizontal(lipgloss.Top, accumulator...)
 			s += "\n"
-			accumulator = make([]string, 0, len(choices))
+			accumulator = make([]string, 0, len(m.choices))
 		}
 	}
 

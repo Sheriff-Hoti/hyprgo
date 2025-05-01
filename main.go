@@ -1,13 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"log"
 
 	"github.com/Sheriff-Hoti/hyprgo/consts"
 	"github.com/Sheriff-Hoti/hyprgo/pkg"
-	"github.com/Sheriff-Hoti/hyprgo/tui"
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 // These imports will be used later on the tutorial. If you save the file
@@ -33,25 +30,27 @@ func RenderImages(filenames []string) {
 
 func main() {
 
+	_, err := pkg.ReadConfigFile()
+	log.Print(err)
 	//first read the config then start rendering images
 	//  then start the tea program
 
-	filenames, filenames_error := pkg.GetWallpapers("./img")
+	// filenames, filenames_error := pkg.GetWallpapers("./img")
 
-	if filenames_error != nil {
-		fmt.Println("Error:", filenames_error)
-		os.Exit(1)
-	}
+	// if filenames_error != nil {
+	// 	fmt.Println("Error:", filenames_error)
+	// 	os.Exit(1)
+	// }
 
-	RenderImages(filenames)
+	// RenderImages(filenames)
 
-	fmt.Print("\033[H")
+	// fmt.Print("\033[H")
 
-	p := tea.NewProgram(tui.InitialModel())
-	if _, err := p.Run(); err != nil {
-		fmt.Printf("Alas, there's been an error: %v", err)
-		os.Exit(1)
-	}
+	// p := tea.NewProgram(tui.InitialModel(filenames, 0))
+	// if _, err := p.Run(); err != nil {
+	// 	fmt.Printf("Alas, there's been an error: %v", err)
+	// 	os.Exit(1)
+	// }
 }
 
 //use icat

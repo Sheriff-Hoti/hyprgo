@@ -9,4 +9,5 @@ const (
 	BOX_SIZE               = 6
 	CELL_COLS              = 3
 	WALLPAPER_DIR          = "./img"
+	CONFIG_PATH            = ".config/hyprgo.conf"
 )
