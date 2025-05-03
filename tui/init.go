@@ -28,27 +28,21 @@ var (
 )
 
 type model struct {
-	choices   []string // items on the to-do list
-	cursor    int      // which to-do list item our cursor is pointing at
-	selected  int      // which to-do items are selected
-	term_info *pkg.TerminalInfo
-	row_num   int
-	col_num   int
+	choices                   []string // items on the to-do list
+	cursor                    int      // which to-do list item our cursor is pointing at
+	selected                  int      // which to-do items are selected
+	term_info                 *pkg.TerminalInfo
+	col_num                   int
+	onWallPaperSelectCallback func(t int)
 }
 
-func InitialModel(choices []string, selected int) model {
+func InitialModel(choices []string, selected int, callback func(t int)) model {
 	return model{
-		choices:   choices,
-		selected:  selected,
-		term_info: nil,
-		row_num: (len(choices) / 3) + func() int {
-			if len(choices)%3 == 0 {
-				return 0
-			}
-			return 1
-		}(),
-
-		col_num: 3,
+		choices:                   choices,
+		selected:                  selected,
+		term_info:                 nil,
+		col_num:                   3,
+		onWallPaperSelectCallback: callback,
 	}
 }
 
@@ -98,8 +92,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// the selected state for the item that the cursor is pointing at.
 		case "enter", " ":
 			m.selected = m.cursor
-			sway := pkg.SwayBg{}
-			sway.SetImage(m.choices[0])
+			m.onWallPaperSelectCallback(m.selected)
 			//here we need to make the change to update the wallpaper into ./local/.share or smth
 			//config file prolly ./config/hypr/hyprgo.conf
 		}

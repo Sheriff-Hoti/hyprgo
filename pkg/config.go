@@ -7,9 +7,12 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/Sheriff-Hoti/hyprgo/consts"
 )
+
+var ()
 
 type Backend string
 
@@ -17,6 +20,10 @@ const (
 	Swaybg    Backend = "swaybg"
 	Hyprpaper Backend = "hyprpaper"
 )
+
+type ConfigField interface {
+	Validate(key string, value string) error
+}
 
 type Config struct {
 	backend      Backend
@@ -65,7 +72,7 @@ func ReadConfigFile() (*Config, error) {
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
-		log.Print(scanner.Text())
+		log.Print(ExtractKVPair(scanner.Text()))
 
 	}
 
@@ -77,4 +84,30 @@ func ReadConfigFile() (*Config, error) {
 		backend:      Swaybg,
 		wallpaperDir: "./",
 	}, nil
+
+	// this method vill return a valid kv pair
 }
+
+func ExtractKVPair(line string) (string, string, error) {
+	split := strings.Split(line, "=")
+	if len(split) != 2 {
+		return "", "", errors.New("it should be 2")
+	}
+	key := strings.Trim(split[0], " ")
+	value := strings.Trim(split[1], " ")
+
+	if key == "" {
+		return "", "", errors.New("key must not be empty")
+	}
+
+	if value == "" {
+		return "", "", errors.New("value must not be empty")
+	}
+
+	return key, value, nil
+}
+
+// after this it will be ging to other validator metho
+// first the default config and then each config function will get
+// the map value and pull their own key
+// also add a map func i guess ??
