@@ -46,7 +46,7 @@ func GetWallpapers(dir string) (filenames []string, erro error) {
 	return file_names, err
 }
 
-func ReadConfigFile() (*Config, error) {
+func ReadConfigFile() (map[string]string, error) {
 	home_dir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err
@@ -56,10 +56,7 @@ func ReadConfigFile() (*Config, error) {
 	if _, err := os.Stat(config_path); errors.Is(err, os.ErrNotExist) {
 		// path/to/whatever does not exist
 		log.Print("congrats 404")
-		return &Config{
-			backend:      Swaybg,
-			wallpaperDir: "./",
-		}, nil
+		return nil, err
 	}
 
 	file, err := os.Open(config_path)
@@ -71,8 +68,15 @@ func ReadConfigFile() (*Config, error) {
 
 	scanner := bufio.NewScanner(file)
 
+	kvpairmap := make(map[string]string, 0)
+
 	for scanner.Scan() {
-		log.Print(ExtractKVPair(scanner.Text()))
+		key, val, err := ExtractKVPair(scanner.Text())
+		if err != nil {
+			log.Println(err)
+		} else {
+			kvpairmap[key] = val
+		}
 
 	}
 
@@ -80,10 +84,7 @@ func ReadConfigFile() (*Config, error) {
 		return nil, err
 	}
 
-	return &Config{
-		backend:      Swaybg,
-		wallpaperDir: "./",
-	}, nil
+	return kvpairmap, nil
 
 	// this method vill return a valid kv pair
 }

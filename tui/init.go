@@ -33,7 +33,7 @@ type model struct {
 	selected                  int      // which to-do items are selected
 	term_info                 *pkg.TerminalInfo
 	col_num                   int
-	onWallPaperSelectCallback func(t int)
+	onWallpaperSelectCallback func(t int)
 }
 
 func InitialModel(choices []string, selected int, callback func(t int)) model {
@@ -42,7 +42,7 @@ func InitialModel(choices []string, selected int, callback func(t int)) model {
 		selected:                  selected,
 		term_info:                 nil,
 		col_num:                   3,
-		onWallPaperSelectCallback: callback,
+		onWallpaperSelectCallback: callback,
 	}
 }
 
@@ -92,7 +92,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// the selected state for the item that the cursor is pointing at.
 		case "enter", " ":
 			m.selected = m.cursor
-			m.onWallPaperSelectCallback(m.selected)
+			m.onWallpaperSelectCallback(m.selected)
 			//here we need to make the change to update the wallpaper into ./local/.share or smth
 			//config file prolly ./config/hypr/hyprgo.conf
 		}

@@ -46,3 +46,7 @@ func (s *SwayBg) IsInstalled() bool {
 	// This is where you'd call swaybg or something similar
 	return true
 }
+
+func InitBackend(map[string]string) WallpaperBackend {
+	return &SwayBg{}
+}

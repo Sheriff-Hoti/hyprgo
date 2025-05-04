@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/Sheriff-Hoti/hyprgo/consts"
@@ -34,7 +33,17 @@ func RenderImages(filenames []string) {
 
 func main() {
 
-	pkg.ReadConfigFile()
+	kvpairmap, err := pkg.ReadConfigFile()
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+		return
+	}
+
+	backend := pkg.InitBackend(kvpairmap)
+	fmt.Println(kvpairmap)
+	fmt.Println(backend)
+
 	//first read the config then start rendering images
 	//  then start the tea program
 
@@ -50,7 +59,8 @@ func main() {
 	// fmt.Print("\033[H")
 
 	p := tea.NewProgram(tui.InitialModel(filenames, 0, func(t int) {
-		log.Print("it works")
+		backend.SetImage(filenames[t])
+
 	}))
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
