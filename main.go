@@ -1,13 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"log"
 
 	"github.com/Sheriff-Hoti/hyprgo/consts"
 	"github.com/Sheriff-Hoti/hyprgo/pkg"
-	"github.com/Sheriff-Hoti/hyprgo/tui"
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 // These imports will be used later on the tutorial. If you save the file
@@ -33,39 +30,44 @@ func RenderImages(filenames []string) {
 
 func main() {
 
-	kvpairmap, err := pkg.ReadConfigFile()
-	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
-		return
-	}
+	data, err := pkg.GetDataContent()
 
-	backend := pkg.InitBackend(kvpairmap)
-	fmt.Println(kvpairmap)
-	fmt.Println(backend)
+	log.Println(data, err)
 
-	//first read the config then start rendering images
-	//  then start the tea program
+	// kvpairmap, err := pkg.ReadConfigFile()
+	// if err != nil {
+	// 	fmt.Println("Error:", err)
+	// 	os.Exit(1)
+	// 	return
+	// }
 
-	filenames, filenames_error := pkg.GetWallpapers("./img")
+	// backend := pkg.InitBackend(kvpairmap)
+	// fmt.Println(kvpairmap)
+	// fmt.Println(backend)
 
-	if filenames_error != nil {
-		fmt.Println("Error:", filenames_error)
-		os.Exit(1)
-	}
+	// //first read the config then start rendering images
+	// //  then start the tea program
 
-	// RenderImages(filenames)
+	// //.local/share/hyprgo/hyprgo-data.yaml
+	// filenames, filenames_error := pkg.GetWallpapers("./img")
 
-	// fmt.Print("\033[H")
+	// if filenames_error != nil {
+	// 	fmt.Println("Error:", filenames_error)
+	// 	os.Exit(1)
+	// }
 
-	p := tea.NewProgram(tui.InitialModel(filenames, 0, func(t int) {
-		backend.SetImage(filenames[t])
+	// // RenderImages(filenames)
 
-	}))
-	if _, err := p.Run(); err != nil {
-		fmt.Printf("Alas, there's been an error: %v", err)
-		os.Exit(1)
-	}
+	// // fmt.Print("\033[H")
+
+	// p := tea.NewProgram(tui.InitialModel(filenames, 0, func(t int) {
+	// 	backend.SetImage(filenames[t])
+
+	// }))
+	// if _, err := p.Run(); err != nil {
+	// 	fmt.Printf("Alas, there's been an error: %v", err)
+	// 	os.Exit(1)
+	// }
 }
 
 //use icat
