@@ -7,9 +7,21 @@ import (
 	"path/filepath"
 )
 
+type DataActionMode int
+
+const (
+	Read DataActionMode = iota
+	Write
+)
+
 type Data struct {
 	Current_wallpaper string `json:"current_wallpaper"`
 	Init              bool   `json:"init"`
+}
+
+type DataAction struct {
+	Mode DataActionMode
+	Data *Data
 }
 
 func GetOrCreateDataDir() (string, error) {
@@ -28,7 +40,7 @@ func GetOrCreateDataDir() (string, error) {
 	return data_dir, nil
 }
 
-func GetDataContent() (*Data, error) {
+func DataContent(action DataAction) (*Data, error) {
 	data_dir, err := GetOrCreateDataDir()
 
 	if err != nil {
@@ -37,7 +49,7 @@ func GetDataContent() (*Data, error) {
 
 	data_path := filepath.Join(data_dir, "data.json")
 
-	f, err := os.Open(data_path)
+	f, err := os.OpenFile(data_path, os.O_RDWR|os.O_CREATE, 0644)
 
 	if err != nil {
 		var create_err error
@@ -62,14 +74,33 @@ func GetDataContent() (*Data, error) {
 
 	}
 
+	defer f.Close()
+
+	decoder := json.NewDecoder(f)
+	encoder := json.NewEncoder(f)
+
 	var data Data
-	if err := json.NewDecoder(f).Decode(&data); err != nil {
-		log.Println(err)
+
+	switch action.Mode {
+	case Read:
+		if err := decoder.Decode(&data); err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		return &data, nil
+	case Write:
+		new_data := action.Data
+		if err := encoder.Encode(new_data); err != nil {
+			log.Println(err)
+			return nil, err
+
+		}
+		return new_data, nil
 	}
 
-	if err := f.Close(); err != nil {
-		log.Fatal(err)
-	}
+	// if err := f.Close(); err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	return &data, nil
 

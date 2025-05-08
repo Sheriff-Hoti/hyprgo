@@ -1,8 +1,7 @@
 package main
 
 import (
-	"log"
-
+	"github.com/Sheriff-Hoti/hyprgo/cmd"
 	"github.com/Sheriff-Hoti/hyprgo/consts"
 	"github.com/Sheriff-Hoti/hyprgo/pkg"
 )
@@ -30,10 +29,9 @@ func RenderImages(filenames []string) {
 
 func main() {
 
-	data, err := pkg.GetDataContent()
+	cmd.Execute()
 
-	log.Println(data, err)
-
+	// //read the config file
 	// kvpairmap, err := pkg.ReadConfigFile()
 	// if err != nil {
 	// 	fmt.Println("Error:", err)
@@ -41,14 +39,14 @@ func main() {
 	// 	return
 	// }
 
+	// //init backend from the config file
 	// backend := pkg.InitBackend(kvpairmap)
-	// fmt.Println(kvpairmap)
-	// fmt.Println(backend)
+	// // fmt.Println(kvpairmap)
+	// // fmt.Println(backend)
 
-	// //first read the config then start rendering images
-	// //  then start the tea program
+	// // //first read the config then start rendering images
+	// // //  then start the tea program
 
-	// //.local/share/hyprgo/hyprgo-data.yaml
 	// filenames, filenames_error := pkg.GetWallpapers("./img")
 
 	// if filenames_error != nil {
@@ -56,12 +54,18 @@ func main() {
 	// 	os.Exit(1)
 	// }
 
-	// // RenderImages(filenames)
+	// RenderImages(filenames)
 
-	// // fmt.Print("\033[H")
+	// fmt.Print("\033[H")
 
 	// p := tea.NewProgram(tui.InitialModel(filenames, 0, func(t int) {
 	// 	backend.SetImage(filenames[t])
+	// 	pkg.DataContent(pkg.DataAction{
+	// 		Mode: pkg.Write,
+	// 		Data: &pkg.Data{
+	// 			Current_wallpaper: filenames[t],
+	// 		},
+	// 	})
 
 	// }))
 	// if _, err := p.Run(); err != nil {
