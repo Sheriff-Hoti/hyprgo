@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -25,6 +26,7 @@ type DataAction struct {
 }
 
 func GetOrCreateDataDir() (string, error) {
+	//TODO make this more dynamic
 	home_dir, err := os.UserHomeDir()
 
 	if err != nil {
@@ -103,5 +105,16 @@ func DataContent(action DataAction) (*Data, error) {
 	// }
 
 	return &data, nil
+
+}
+
+func GetDefaultDataPath() string {
+	xdg_data_home := "XDG_DATA_HOME"
+	home := "HOME"
+
+	if _, ok := os.LookupEnv(xdg_data_home); ok {
+		return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", xdg_data_home), "hyprgo", "data.json"))
+	}
+	return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", home), ".local", "share", "hyprgo", "data.json"))
 
 }

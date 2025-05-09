@@ -6,15 +6,10 @@ import (
 	"os/exec"
 )
 
-// handle here kitten icat callings
-
 var (
 	base_cmd = "kitten"
 	icat_cmd = "icat"
 )
-
-//kitten icat --stdin=no --align=left --place=20x20@1x3 ./img/night-sky.jpg
-//&& kitten icat --stdin=no --align=left --place=20x20@1x10 ./img/test.jpg
 
 type Place struct {
 	Width  int
@@ -31,7 +26,6 @@ type ICatOptions struct {
 	Wallpaper_path string
 }
 
-// https://github.com/5hubham5ingh/WallRizz/blob/main/src/userInterface.js
 func IcatCmdHalder(options ICatOptions) {
 	stdin := "--stdin=no"
 	scale_up := ""
@@ -55,37 +49,3 @@ func IcatCmdHalder(options ICatOptions) {
 	}
 
 }
-
-// drawUI() {
-//     if (!this.wallpapers) return;
-//     print(clearTerminal);
-//     // Draw wallpapers
-//     this.wallpapers.forEach((wallpaper, i) => {
-//       const wallpaperDir = `${this.wallpapersDir}/${wallpaper.uniqueId}`;
-//       const [x, y] = i < this.xy.length
-//         ? this.xy[i]
-//         : this.xy[i % this.xy.length];
-//       const coordinates = `${this.imageWidth}x${this.imageHeight}@${x}x${y}`;
-//       // print(cursorMove(x, y));
-//       // OS.exec([
-//       //   "timg",
-//       //   "-U",
-//       //   "-W",
-//       //   "--clear",
-//       //   "-pk",
-//       //   `-g${this.imageWidth}x${this.imageHeight}`,
-//       //   wallpaperDir,
-//       // ]);
-//       OS.exec([
-//         "kitten",
-//         "icat",
-//         "--stdin=no",
-//         "--scale-up",
-//         "--place",
-//         coordinates,
-//         wallpaperDir,
-//       ]);
-//     });
-
-//     this.drawContainerBorder(this.xy[this.selection]);
-//   }

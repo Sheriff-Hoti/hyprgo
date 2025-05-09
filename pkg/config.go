@@ -12,41 +12,28 @@ import (
 	"github.com/Sheriff-Hoti/hyprgo/consts"
 )
 
-var ()
-
-type Backend string
-
-const (
-	Swaybg    Backend = "swaybg"
-	Hyprpaper Backend = "hyprpaper"
-)
-
-type ConfigField interface {
-	Validate(key string, value string) error
-}
-
-type Config struct {
-	backend      Backend
-	wallpaperDir string
-}
-
 func GetWallpapers(dir string) (filenames []string, erro error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
 	file_names := make([]string, 0, 10)
-	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
-			filename := fmt.Sprintf("%v/%v", dir, info.Name())
-			ext := filepath.Ext(filename)
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			ext := strings.ToLower(filepath.Ext(entry.Name()))
 			if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
-				file_names = append(file_names, filename)
+				fullPath := filepath.Join(dir, entry.Name())
+				file_names = append(file_names, fullPath)
 			}
 		}
-		return nil
-	})
+	}
 
-	return file_names, err
+	return file_names, nil
 }
 
-func ReadConfigFile(config string) (map[string]string, error) {
+func ReadConfigFile(config *string) (map[string]string, error) {
 	home_dir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err
@@ -56,7 +43,8 @@ func ReadConfigFile(config string) (map[string]string, error) {
 	if _, err := os.Stat(config_path); errors.Is(err, os.ErrNotExist) {
 		// path/to/whatever does not exist and if it does not exists just return the defaults
 		log.Print("congrats 404")
-		return nil, err
+
+		return GetDefaultConfigVals(), nil
 	}
 
 	file, err := os.Open(config_path)
@@ -117,6 +105,14 @@ func GetDefaultConfigPath() string {
 	}
 	return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", home), ".config", "hyprgo.conf"))
 
+}
+
+func GetDefaultConfigVals() map[string]string {
+	return map[string]string{
+		"backend":       "swaync",
+		"wallpaper_dir": os.ExpandEnv("$HOME"),
+		"data_dir":      GetDefaultDataPath(),
+	}
 }
 
 // after this it will be ging to other validator metho

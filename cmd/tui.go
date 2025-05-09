@@ -23,7 +23,6 @@ var tuiCmd = &cobra.Command{
 	Long:  `Well well well`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		//prolly here get the config dir or put the default config in
-		fmt.Println("init cmd ran")
 		dir, dir_err := cmd.Flags().GetString("dir")
 		backend, backend_err := cmd.Flags().GetString("backend")
 		_, config_err := rootCmd.PersistentFlags().GetString("config")
@@ -33,7 +32,7 @@ var tuiCmd = &cobra.Command{
 		}
 
 		//TODO need to change this so the config dir to be configurable
-		kvpairmap, kvpairmap_err := pkg.ReadConfigFile()
+		kvpairmap, kvpairmap_err := pkg.ReadConfigFile(nil)
 
 		if kvpairmap_err != nil {
 			return kvpairmap_err
@@ -50,10 +49,15 @@ var tuiCmd = &cobra.Command{
 		wp_backend := pkg.InitBackend(kvpairmap)
 
 		//TODO make this more dynamic
-		filenames, filenames_error := pkg.GetWallpapers("./img")
+		filenames, filenames_error := pkg.GetWallpapers(kvpairmap["wallpaper_dir"])
 
 		if filenames_error != nil {
 			return filenames_error
+		}
+
+		if len(filenames) == 0 {
+			//If no png or jpeg or jpg return error
+			return errors.New("no wallpapers in this directory")
 		}
 
 		RenderImages(filenames)
@@ -94,6 +98,3 @@ func RenderImages(filenames []string) {
 		})
 	}
 }
-
-//next step to add a datadir support to config file and also
-//to have the config dir customizeable with -c flag in the base part and also the tui part
