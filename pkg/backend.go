@@ -48,5 +48,6 @@ func (s *SwayBg) IsInstalled() bool {
 }
 
 func InitBackend(map[string]string) WallpaperBackend {
+	//prolly here a backend validator func
 	return &SwayBg{}
 }

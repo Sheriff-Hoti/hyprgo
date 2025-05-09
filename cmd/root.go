@@ -49,7 +49,7 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "tg", false, "Help message for toggle")
-	rootCmd.Flags().StringP("config", "c", "", "specify the config file")
+	rootCmd.PersistentFlags().StringP("config", "c", "", "specify the config file")
 
 	// rootCmd.MarkFlagRequired("tool")
 	// rootCmd.MarkFlagRequired("dir")

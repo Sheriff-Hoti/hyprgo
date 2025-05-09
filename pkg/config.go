@@ -54,7 +54,7 @@ func ReadConfigFile() (map[string]string, error) {
 	config_path := fmt.Sprintf("%v/%v", home_dir, consts.CONFIG_PATH)
 	log.Println(config_path)
 	if _, err := os.Stat(config_path); errors.Is(err, os.ErrNotExist) {
-		// path/to/whatever does not exist
+		// path/to/whatever does not exist and if it does not exists just return the defaults
 		log.Print("congrats 404")
 		return nil, err
 	}
