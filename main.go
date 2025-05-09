@@ -1,7 +1,9 @@
 package main
 
 import (
-	"github.com/Sheriff-Hoti/hyprgo/cmd"
+	"fmt"
+	"os"
+
 	"github.com/Sheriff-Hoti/hyprgo/consts"
 	"github.com/Sheriff-Hoti/hyprgo/pkg"
 )
@@ -27,9 +29,37 @@ func RenderImages(filenames []string) {
 	}
 }
 
+func pathExists(path string) bool {
+	// Expand environment variables like $HOME
+	expanded := os.ExpandEnv(path)
+	// info, err := os.Stat(expanded)
+	_, err := os.Stat(expanded)
+	if err != nil {
+		return false
+	}
+	// Optionally, distinguish between file and directory:
+	// return info.Mode().IsDir() // for directory
+	// return info.Mode().IsRegular() // for file
+	return true
+}
+
 func main() {
 
-	cmd.Execute()
+	paths := []string{
+		"$HOME/.config",
+		"$XDG_CONFIG_HOME",
+		"$HOME/.bashrc",
+	}
+
+	for _, p := range paths {
+		if pathExists(p) {
+			fmt.Printf("Exists: %s\n", os.ExpandEnv(p))
+		} else {
+			fmt.Printf("Does not exist: %s\n", os.ExpandEnv(p))
+		}
+	}
+
+	// cmd.Execute()
 
 	// //read the config file
 	// kvpairmap, err := pkg.ReadConfigFile()

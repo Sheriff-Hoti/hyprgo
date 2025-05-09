@@ -32,7 +32,7 @@ var tuiCmd = &cobra.Command{
 			return flag_err
 		}
 
-		//need to change this so the config dir to be configurable
+		//TODO need to change this so the config dir to be configurable
 		kvpairmap, kvpairmap_err := pkg.ReadConfigFile()
 
 		if kvpairmap_err != nil {
@@ -49,7 +49,7 @@ var tuiCmd = &cobra.Command{
 
 		wp_backend := pkg.InitBackend(kvpairmap)
 
-		//make this more dynamic
+		//TODO make this more dynamic
 		filenames, filenames_error := pkg.GetWallpapers("./img")
 
 		if filenames_error != nil {

@@ -46,7 +46,7 @@ func GetWallpapers(dir string) (filenames []string, erro error) {
 	return file_names, err
 }
 
-func ReadConfigFile() (map[string]string, error) {
+func ReadConfigFile(config string) (map[string]string, error) {
 	home_dir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err
@@ -106,6 +106,17 @@ func ExtractKVPair(line string) (string, string, error) {
 	}
 
 	return key, value, nil
+}
+
+func GetDefaultConfigPath() string {
+	xdg_config_home := "XDG_CONFIG_HOME"
+	home := "HOME"
+
+	if _, ok := os.LookupEnv(xdg_config_home); ok {
+		return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", xdg_config_home), "hyprgo.conf"))
+	}
+	return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", home), ".config", "hyprgo.conf"))
+
 }
 
 // after this it will be ging to other validator metho
