@@ -37,8 +37,6 @@ func (s *SwayBg) SetImage(imagepath string) error {
 	// Do not wait for it
 	_ = cmd.Process.Release()
 
-	println("swaybg detached with PID", cmd.Process.Pid)
-
 	return err
 }
 

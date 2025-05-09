@@ -24,7 +24,10 @@ func GetWallpapers(dir string) (filenames []string, erro error) {
 		if !entry.IsDir() {
 			ext := strings.ToLower(filepath.Ext(entry.Name()))
 			if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
-				fullPath := filepath.Join(dir, entry.Name())
+				fullPath, err := filepath.Abs(filepath.Join(dir, entry.Name()))
+				if err != nil {
+					return nil, err
+				}
 				file_names = append(file_names, fullPath)
 			}
 		}
@@ -39,10 +42,8 @@ func ReadConfigFile(config *string) (map[string]string, error) {
 		return nil, err
 	}
 	config_path := fmt.Sprintf("%v/%v", home_dir, consts.CONFIG_PATH)
-	log.Println(config_path)
 	if _, err := os.Stat(config_path); errors.Is(err, os.ErrNotExist) {
 		// path/to/whatever does not exist and if it does not exists just return the defaults
-		log.Print("congrats 404")
 
 		return GetDefaultConfigVals(), nil
 	}

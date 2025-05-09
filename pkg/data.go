@@ -3,7 +3,6 @@ package pkg
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -86,23 +85,17 @@ func DataContent(action DataAction) (*Data, error) {
 	switch action.Mode {
 	case Read:
 		if err := decoder.Decode(&data); err != nil {
-			log.Println(err)
 			return nil, err
 		}
 		return &data, nil
 	case Write:
 		new_data := action.Data
 		if err := encoder.Encode(new_data); err != nil {
-			log.Println(err)
 			return nil, err
 
 		}
 		return new_data, nil
 	}
-
-	// if err := f.Close(); err != nil {
-	// 	log.Fatal(err)
-	// }
 
 	return &data, nil
 
