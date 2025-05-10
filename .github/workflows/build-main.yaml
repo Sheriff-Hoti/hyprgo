@@ -1,0 +1,23 @@
+name: Build Hyprgo Binary
+
+on:
+  push:
+    branches: [main] # or any branches you want
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build statically for Linux
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o hyprgo main.go

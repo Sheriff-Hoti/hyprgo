@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"github.com/Sheriff-Hoti/hyprgo/consts"
 	"github.com/Sheriff-Hoti/hyprgo/pkg"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -41,7 +42,7 @@ func InitialModel(choices []string, selected int, callback func(t int)) model {
 		choices:                   choices,
 		selected:                  selected,
 		term_info:                 nil,
-		col_num:                   3,
+		col_num:                   consts.CELL_COLS,
 		onWallpaperSelectCallback: callback,
 	}
 }
@@ -110,13 +111,13 @@ func (m model) View() string {
 
 	accumulator := make([]string, 0, len(m.choices))
 
-	for idx, val := range m.choices {
+	for idx, _ := range m.choices {
 		if idx == m.cursor {
-			accumulator = append(accumulator, focusedModelStyle.Render(val))
+			accumulator = append(accumulator, focusedModelStyle.Render())
 		} else if idx == m.selected {
-			accumulator = append(accumulator, selectedModelStyle.Render(val))
+			accumulator = append(accumulator, selectedModelStyle.Render())
 		} else {
-			accumulator = append(accumulator, modelStyle.Render(val))
+			accumulator = append(accumulator, modelStyle.Render())
 
 		}
 		if (idx+1)%m.col_num == 0 || idx == len(m.choices)-1 {
