@@ -55,10 +55,10 @@ well well well, the design is inspired by wallrizz".`,
 			return filenames_error
 		}
 
-		if len(filenames) == 0 {
-			//If no png or jpeg or jpg return error
-			return errors.New("no wallpapers in this directory")
-		}
+		// if len(filenames) == 0 {
+		// 	//If no png or jpeg or jpg return error
+		// 	return errors.New("no wallpapers in this directory")
+		// }
 
 		RenderImages(filenames)
 
