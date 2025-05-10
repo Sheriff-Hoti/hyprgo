@@ -1,7 +1,6 @@
 version: 2
 
 builds:
-    ignore:
-      - goos: windows
-        goarch: arm
- 
+  ignore:
+    - goos: windows
+      goarch: arm
