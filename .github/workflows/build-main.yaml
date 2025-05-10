@@ -20,4 +20,4 @@ jobs:
 
       - name: Build statically for Linux
         run: |
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o hyprgo main.go
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o hyprgo
