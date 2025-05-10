@@ -1,6 +1,8 @@
 version: 2
 
 builds:
-  ignore:
-    - goos: windows
-      goarch: arm
+  goos:
+    - linux
+  goarch:
+    - amd64
+    - arm64
