@@ -25,14 +25,18 @@ var tuiCmd = &cobra.Command{
 		//prolly here get the config dir or put the default config in
 		dir, dir_err := cmd.Flags().GetString("dir")
 		backend, backend_err := cmd.Flags().GetString("backend")
-		_, config_err := rootCmd.PersistentFlags().GetString("config")
+		config, config_err := rootCmd.PersistentFlags().GetString("config")
 
 		if flag_err := errors.Join(dir_err, backend_err, config_err); flag_err != nil {
 			return flag_err
 		}
 
+		if config == "" {
+			config = pkg.GetDefaultConfigPath()
+		}
+
 		//TODO need to change this so the config dir to be configurable
-		kvpairmap, kvpairmap_err := pkg.ReadConfigFile(nil)
+		kvpairmap, kvpairmap_err := pkg.ReadConfigFile(config)
 
 		if kvpairmap_err != nil {
 			return kvpairmap_err

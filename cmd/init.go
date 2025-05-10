@@ -14,16 +14,23 @@ var initCmd = &cobra.Command{
 	Short: "open the tui app",
 	Long:  `Well well well`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+
+		config, config_err := rootCmd.PersistentFlags().GetString("config")
+
 		data_content, data_err := pkg.DataContent(pkg.DataAction{
 			Mode: pkg.Read,
 			Data: nil,
 		})
 
+		if config == "" {
+			config = pkg.GetDefaultConfigPath()
+		}
+
 		if data_err != nil {
 			return data_err
 		}
 
-		kvpairmap, config_err := pkg.ReadConfigFile(nil)
+		kvpairmap, config_err := pkg.ReadConfigFile(config)
 
 		if config_err != nil {
 			return config_err

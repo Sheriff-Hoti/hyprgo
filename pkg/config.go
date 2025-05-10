@@ -8,8 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/Sheriff-Hoti/hyprgo/consts"
 )
 
 func GetWallpapers(dir string) (filenames []string, erro error) {
@@ -36,12 +34,8 @@ func GetWallpapers(dir string) (filenames []string, erro error) {
 	return file_names, nil
 }
 
-func ReadConfigFile(config *string) (map[string]string, error) {
-	home_dir, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
-	config_path := fmt.Sprintf("%v/%v", home_dir, consts.CONFIG_PATH)
+func ReadConfigFile(config_path string) (map[string]string, error) {
+
 	if _, err := os.Stat(config_path); errors.Is(err, os.ErrNotExist) {
 		// path/to/whatever does not exist and if it does not exists just return the defaults
 
