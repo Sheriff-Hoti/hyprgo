@@ -21,3 +21,10 @@ jobs:
       - name: Build statically for Linux
         run: |
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o hyprgo
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: hyprgo
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
