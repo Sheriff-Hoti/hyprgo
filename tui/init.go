@@ -2,7 +2,6 @@ package tui
 
 import (
 	"github.com/Sheriff-Hoti/hyprgo/consts"
-	"github.com/Sheriff-Hoti/hyprgo/pkg"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -32,7 +31,6 @@ type model struct {
 	choices                   []string // items on the to-do list
 	cursor                    int      // which to-do list item our cursor is pointing at
 	selected                  int      // which to-do items are selected
-	term_info                 *pkg.TerminalInfo
 	col_num                   int
 	onWallpaperSelectCallback func(t int)
 }
@@ -41,7 +39,6 @@ func InitialModel(choices []string, selected int, callback func(t int)) model {
 	return model{
 		choices:                   choices,
 		selected:                  selected,
-		term_info:                 nil,
 		col_num:                   consts.CELL_COLS,
 		onWallpaperSelectCallback: callback,
 	}
