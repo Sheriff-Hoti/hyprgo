@@ -2,37 +2,104 @@
   description = "TUI Wallpaper Selector";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
   };
 
   outputs =
-    { nixpkgs, ... }:
+    {
+      self,
+      nixpkgs,
+    }:
     let
-      # you can also put any architecture you want to support here
-      # i.e. aarch64-darwin for never M1/2 macbooks
-      system = "x86_64-linux";
-      pname = "hyprgo";
+      #System types to support.
+      supportedSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+
+      # Helper function to generate an attrset '{ x86_64-linux = f "x86_64-linux"; ... }'.
+      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+
+      # Nixpkgs instantiated for supported system types.
+      nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
+
       version = "0.1.0";
+      pname = "hyprgo";
     in
     {
-      packages.${system} =
+      packages = forAllSystems (
+        system:
         let
-          pkgs = import nixpkgs { inherit system; }; # this gives us access to nixpkgs as we are used to
+          pkgs = nixpkgsFor.${system};
         in
         {
-          default = pkgs.buildGoModule {
-            name = pname;
-            src = pkgs.fetchFromGitHub {
-              owner = "Sheriff-Hoti";
-              repo = pname;
-              rev = "v${version}";
-              hash = "sha256-mkvqTRxqYyW4A+LW3/kQQJfUDK6Mv19MPm8Ys1MJhLc=";
-            };
+          ${pname} = pkgs.buildGoModule {
+            inherit pname;
+            inherit version;
+
+            src = ./.;
 
             vendorHash = "sha256-L/D4+cTkofF+RTLRt7KytRm/rC2BxmuUz2hh/IPRvzE=";
           };
-        };
+        }
+      );
+
+      defaultPackage = forAllSystems (system: self.packages.${system}.${pname});
+      devShell = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgsFor.${system};
+        in
+        with pkgs;
+        mkShell {
+          buildInputs = [
+            go
+            gopls
+          ];
+        }
+      );
+
+      nixosModule = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgsFor.${system};
+        in
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
+        with lib;
+        let
+          cfg = config.services.hyprgo;
+          page = types.submodule {
+            options = {
+              name = mkOption {
+                type = types.str;
+                description = "name of the page";
+              };
+              url = mkOption {
+                type = types.str;
+                description = "url of the page";
+              };
+            };
+          };
+
+        in
+        {
+          options.programs.hyprgo = {
+            enable = mkEnableOption "hyprgo enable";
+
+            package = mkOption {
+              type = types.package;
+              default = self.packages.${system}.hyprgo;
+              description = "hyprgo package to use";
+            };
+
+          };
+
+        }
+      );
     };
 }
-
-# source: https://blog.lenny.ninja/posts/2022-11-06-packaing-nix-services.html
