@@ -72,7 +72,7 @@
         }:
         with lib;
         let
-          cfg = config.services.hyprgo;
+          cfg = config.packages.hyprgo;
           page = types.submodule {
             options = {
               name = mkOption {
