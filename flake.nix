@@ -26,11 +26,13 @@
               owner = "Sheriff-Hoti";
               repo = pname;
               rev = "v${version}";
-              hash = "sha256-${pkgs.lib.fakeHash}";
+              hash = "sha256-mkvqTRxqYyW4A+LW3/kQQJfUDK6Mv19MPm8Ys1MJhLc=";
             };
 
-            vendorHash = "sha256-${pkgs.lib.fakeHash}";
+            vendorHash = "sha256-L/D4+cTkofF+RTLRt7KytRm/rC2BxmuUz2hh/IPRvzE=";
           };
         };
     };
 }
+
+# source: https://blog.lenny.ninja/posts/2022-11-06-packaing-nix-services.html
