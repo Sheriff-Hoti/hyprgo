@@ -1,40 +1,35 @@
 {
-  description = "TUI Wallpaper selector";
+  description = "TUI Wallpaper Selector";
 
   inputs = {
-    # Include the nixpkgs input to use the Nix package collection
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11"; # You can change this to a specific channel or commit
+    nixpkgs.url = "nixpkgs/nixos-24.11";
   };
 
   outputs =
-    { self, nixpkgs, ... }:
+    { nixpkgs, ... }:
     let
-      system = "x86_64-linux"; # Change to your system architecture (e.g., aarch64-linux for ARM)
+      # you can also put any architecture you want to support here
+      # i.e. aarch64-darwin for never M1/2 macbooks
+      system = "x86_64-linux";
+      pname = "hyprgo";
+      version = "0.1.0";
     in
     {
-      # Define the package to be built
       packages.${system} =
         let
-          # Import the nixpkgs repository
-          pkgs = import nixpkgs { inherit system; };
+          pkgs = import nixpkgs { inherit system; }; # this gives us access to nixpkgs as we are used to
         in
-        pkgs.buildGoModule rec {
-          pname = "hyprgo";
-          version = "0.1.0";
+        {
+          default = pkgs.buildGoModule {
+            name = pname;
+            src = pkgs.fetchFromGitHub {
+              owner = "Sheriff-Hoti";
+              repo = pname;
+              rev = "v${version}";
+              hash = "sha256-${pkgs.lib.fakeHash}";
+            };
 
-          src = fetchFromGitHub {
-            owner = "Sheriff-Hoti";
-            repo = "hyprgo";
-            rev = "v${version}";
-            hash = "sha256-0dxf0wj1fi74bzys68w2bnlclks5njq6zbp58crijkj8c22f9hca";
-          };
-
-          meta = {
-            description = "Useful clipboard manager TUI for Unix";
-            homepage = "https://github.com/savedra1/clipse";
-            license = lib.licenses.mit;
-            mainProgram = "hyprgo";
-            # maintainers = [ lib.maintainers.savedra1 ];
+            vendorHash = "sha256-${pkgs.lib.fakeHash}";
           };
         };
     };
