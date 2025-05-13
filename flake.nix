@@ -33,7 +33,7 @@
           pkgs = nixpkgsFor.${system};
         in
         {
-          ${pname} = pkgs.buildGoModule {
+          default = pkgs.buildGoModule {
             inherit pname;
             inherit version;
 
@@ -44,7 +44,6 @@
         }
       );
 
-      defaultPackage = forAllSystems (system: self.packages.${system}.${pname});
       devShell = forAllSystems (
         system:
         let
@@ -71,29 +70,29 @@
           ...
         }:
         with lib;
-        let
-          cfg = config.packages.hyprgo;
-          page = types.submodule {
-            options = {
-              name = mkOption {
-                type = types.str;
-                description = "name of the page";
-              };
-              url = mkOption {
-                type = types.str;
-                description = "url of the page";
-              };
-            };
-          };
+        # let
+        #   cfg = config.packages.hyprgo;
+        #   page = types.submodule {
+        #     options = {
+        #       name = mkOption {
+        #         type = types.str;
+        #         description = "name of the page";
+        #       };
+        #       url = mkOption {
+        #         type = types.str;
+        #         description = "url of the page";
+        #       };
+        #     };
+        #   };
 
-        in
+        # in
         {
           options.programs.hyprgo = {
             enable = mkEnableOption "hyprgo enable";
 
             package = mkOption {
               type = types.package;
-              default = self.packages.${system}.hyprgo;
+              default = self.packages.${system}.default;
               description = "hyprgo package to use";
             };
 
