@@ -44,6 +44,8 @@
         }
       );
 
+      defaultPackage = forAllSystems (system: self.packages.${system}.default);
+
       devShell = forAllSystems (
         system:
         let
