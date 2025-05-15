@@ -72,22 +72,33 @@
           ...
         }:
         with lib;
-        # let
-        #   cfg = config.packages.hyprgo;
-        #   page = types.submodule {
-        #     options = {
-        #       name = mkOption {
-        #         type = types.str;
-        #         description = "name of the page";
-        #       };
-        #       url = mkOption {
-        #         type = types.str;
-        #         description = "url of the page";
-        #       };
-        #     };
-        #   };
+        {
+          options.programs.hyprgo = {
+            enable = mkEnableOption "hyprgo enable";
 
-        # in
+            package = mkOption {
+              type = types.package;
+              default = self.packages.${system}.default;
+              description = "hyprgo package to use";
+            };
+
+          };
+
+        }
+      );
+
+      homeModule = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgsFor.${system};
+        in
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
+        with lib;
         {
           options.programs.hyprgo = {
             enable = mkEnableOption "hyprgo enable";
@@ -104,3 +115,5 @@
       );
     };
 }
+
+#TODO nix-store to nix store optimise
