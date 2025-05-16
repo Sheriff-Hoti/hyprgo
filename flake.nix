@@ -111,6 +111,10 @@
 
           };
 
+          config = mkIf config.programs.hyprgo.enable {
+            home.packages = [ config.programs.hyprgo.package ];
+          };
+
         }
       );
     };
