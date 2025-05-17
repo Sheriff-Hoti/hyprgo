@@ -16,7 +16,8 @@ type Config struct {
 }
 
 func GetWallpapers(dir string) (filenames []string, erro error) {
-	entries, err := os.ReadDir(os.ExpandEnv(dir))
+	dir_env_expanded := os.ExpandEnv(dir)
+	entries, err := os.ReadDir(dir_env_expanded)
 	if err != nil {
 		return nil, err
 	}
@@ -27,10 +28,8 @@ func GetWallpapers(dir string) (filenames []string, erro error) {
 		if !entry.IsDir() {
 			ext := strings.ToLower(filepath.Ext(entry.Name()))
 			if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
-				fullPath, err := filepath.Abs(filepath.Join(dir, entry.Name()))
-				if err != nil {
-					return nil, err
-				}
+				fullPath := filepath.Join(dir_env_expanded, entry.Name())
+
 				file_names = append(file_names, fullPath)
 			}
 		}
