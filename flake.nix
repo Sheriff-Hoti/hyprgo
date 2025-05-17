@@ -99,6 +99,9 @@
           ...
         }:
         with lib;
+        let
+          jsonFormat = pkgs.formats.json { };
+        in
         {
           options.programs.hyprgo = {
             enable = mkEnableOption "hyprgo enable";
@@ -109,11 +112,31 @@
               description = "hyprgo package to use";
             };
 
+            settings = mkOption {
+              type = lib.types.nullOr jsonFormat.type;
+              default = null;
+              description = "JSON configuration settings for hyprgo";
+              example = {
+                wallpapers_dir = "~/Pictures/Wallpapers";
+                backend = "swayb";
+              };
+            };
           };
+
+          config = mkIf config.programs.hyprgo.enable (
+            let
+              cfg = config.programs.hyprgo;
+            in
+            {
+              home.packages = [ cfg.package ];
+
+              xdg.configFile = lib.mkIf (cfg.settings != null) {
+                "hyprgo/config.json".source = jsonFormat.generate "hyprgo-config.json" cfg.settings;
+              };
+            }
+          );
 
         }
       );
     };
 }
-
-#TODO nix-store to nix store optimise

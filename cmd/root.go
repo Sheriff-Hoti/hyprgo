@@ -27,29 +27,29 @@ well well well, the design is inspired by wallrizz".`,
 			return flag_err
 		}
 
-		if config == "" {
+		if !cmd.Flags().Changed("config") {
 			config = pkg.GetDefaultConfigPath()
 		}
 
 		//TODO need to change this so the config dir to be configurable
-		kvpairmap, kvpairmap_err := pkg.ReadConfigFile(config)
+		cc, cc_err := pkg.ReadConfigFile(config)
 
-		if kvpairmap_err != nil {
-			return kvpairmap_err
+		if cc_err != nil {
+			return cc_err
 		}
 
-		if backend != "" {
-			kvpairmap["backend"] = backend
+		if cmd.Flags().Changed("backend") {
+			cc.Backend = backend
 		}
 
-		if dir != "" {
-			kvpairmap["wallpaper_dir"] = dir
+		if cmd.Flags().Changed("dir") {
+			cc.Wallpaper_dir = dir
 		}
 
-		wp_backend := pkg.InitBackend(kvpairmap)
+		wp_backend := pkg.InitBackend(cc)
 
 		//TODO make this more dynamic
-		filenames, filenames_error := pkg.GetWallpapers(kvpairmap["wallpaper_dir"])
+		filenames, filenames_error := pkg.GetWallpapers(cc.Wallpaper_dir)
 
 		if filenames_error != nil {
 			return filenames_error
@@ -98,16 +98,19 @@ func init() {
 
 func RenderImages(filenames []string) {
 	for idx, filename := range filenames {
-		pkg.IcatCmdHalder(pkg.ICatOptions{
-			Place: pkg.Place{
-				Width:  consts.ICAT_IMAGE_WIDTH,
-				Height: consts.ICAT_IMAGE_HEIGHT,
-				Top:    consts.ICAT_IMAGE_TOP_OFFSET + ((idx / consts.CELL_COLS) * 8),
-				Left:   consts.ICAT_IMAGE_LEFT_OFFSET + ((idx % consts.CELL_COLS) * (consts.ICAT_IMAGE_WIDTH + 3)),
-			},
-			Extra_args:     []string{"--z-index=--1"},
-			Scale_up:       true,
-			Wallpaper_path: filename,
-		})
+
+		pkg.ICatCmdBuilder(
+			filename,
+			pkg.WithScaleUp(),
+			pkg.WithStdIn(false),
+			pkg.WithPlace(
+				pkg.Place{
+					Width:  consts.ICAT_IMAGE_WIDTH,
+					Height: consts.ICAT_IMAGE_HEIGHT,
+					Top:    consts.ICAT_IMAGE_TOP_OFFSET + ((idx / consts.CELL_COLS) * 8),
+					Left:   consts.ICAT_IMAGE_LEFT_OFFSET + ((idx % consts.CELL_COLS) * (consts.ICAT_IMAGE_WIDTH + 3)),
+				},
+			),
+		)
 	}
 }

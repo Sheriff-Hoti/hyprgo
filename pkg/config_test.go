@@ -12,7 +12,7 @@ func TestGetDefaultConfigPath(t *testing.T) {
 		t.Setenv("XDG_CONFIG_HOME", "/home/testuser")
 		t.Setenv("HOME", "/home/fallback") // even if both are set, XDG_CONFIG_HOME should take precedence
 
-		expected := filepath.Join("/home/testuser", "hyprgo.conf")
+		expected := filepath.Join("/home/testuser", "hyprgo", "config.json")
 		got := GetDefaultConfigPath()
 		if got != expected {
 			t.Errorf("expected %s, got %s", expected, got)
@@ -23,7 +23,7 @@ func TestGetDefaultConfigPath(t *testing.T) {
 		t.Setenv("HOME", "/home/testuser")
 		_ = os.Unsetenv("XDG_CONFIG_HOME")
 
-		expected := filepath.Join("/home/testuser", ".config", "hyprgo.conf")
+		expected := filepath.Join("/home/testuser", ".config", "hyprgo", "config.json")
 		got := GetDefaultConfigPath()
 		if got != expected {
 			t.Errorf("expected %s, got %s", expected, got)

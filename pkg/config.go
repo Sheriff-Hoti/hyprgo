@@ -1,17 +1,23 @@
 package pkg
 
 import (
-	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
+type Config struct {
+	Backend       string `json:"backend"`
+	Wallpaper_dir string `json:"wallpaper_dir"`
+	Data_dir      string `json:"data_dir"`
+}
+
 func GetWallpapers(dir string) (filenames []string, erro error) {
-	entries, err := os.ReadDir(dir)
+	dir_env_expanded := os.ExpandEnv(dir)
+	entries, err := os.ReadDir(dir_env_expanded)
 	if err != nil {
 		return nil, err
 	}
@@ -22,10 +28,8 @@ func GetWallpapers(dir string) (filenames []string, erro error) {
 		if !entry.IsDir() {
 			ext := strings.ToLower(filepath.Ext(entry.Name()))
 			if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
-				fullPath, err := filepath.Abs(filepath.Join(dir, entry.Name()))
-				if err != nil {
-					return nil, err
-				}
+				fullPath := filepath.Join(dir_env_expanded, entry.Name())
+
 				file_names = append(file_names, fullPath)
 			}
 		}
@@ -34,7 +38,7 @@ func GetWallpapers(dir string) (filenames []string, erro error) {
 	return file_names, nil
 }
 
-func ReadConfigFile(config_path string) (map[string]string, error) {
+func ReadConfigFile(config_path string) (*Config, error) {
 
 	if _, err := os.Stat(config_path); errors.Is(err, os.ErrNotExist) {
 		// path/to/whatever does not exist and if it does not exists just return the defaults
@@ -49,46 +53,14 @@ func ReadConfigFile(config_path string) (map[string]string, error) {
 
 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
+	var config Config
 
-	kvpairmap := make(map[string]string, 0)
+	decoder := json.NewDecoder(file)
 
-	for scanner.Scan() {
-		key, val, err := ExtractKVPair(scanner.Text())
-		if err != nil {
-			log.Println(err)
-		} else {
-			kvpairmap[key] = val
-		}
-
-	}
-
-	if err := scanner.Err(); err != nil {
+	if err := decoder.Decode(&config); err != nil {
 		return nil, err
 	}
-
-	return kvpairmap, nil
-
-	// this method vill return a valid kv pair
-}
-
-func ExtractKVPair(line string) (string, string, error) {
-	split := strings.Split(line, "=")
-	if len(split) != 2 {
-		return "", "", errors.New("it should be 2")
-	}
-	key := strings.Trim(split[0], " ")
-	value := strings.Trim(split[1], " ")
-
-	if key == "" {
-		return "", "", errors.New("key must not be empty")
-	}
-
-	if value == "" {
-		return "", "", errors.New("value must not be empty")
-	}
-
-	return key, value, nil
+	return &config, nil
 }
 
 func GetDefaultConfigPath() string {
@@ -96,17 +68,18 @@ func GetDefaultConfigPath() string {
 	home := "HOME"
 
 	if _, ok := os.LookupEnv(xdg_config_home); ok {
-		return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", xdg_config_home), "hyprgo.conf"))
+		return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", xdg_config_home), "hyprgo", "config.json"))
 	}
-	return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", home), ".config", "hyprgo.conf"))
+	return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", home), ".config", "hyprgo", "config.json"))
 
 }
 
-func GetDefaultConfigVals() map[string]string {
-	return map[string]string{
-		"backend":       "swaync",
-		"wallpaper_dir": os.ExpandEnv("$HOME"),
-		"data_dir":      GetDefaultDataPath(),
+func GetDefaultConfigVals() *Config {
+
+	return &Config{
+		Backend:       "swaync",
+		Wallpaper_dir: os.ExpandEnv("$HOME"),
+		Data_dir:      GetDefaultDataPath(),
 	}
 }
 

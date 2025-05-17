@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"errors"
+
 	"github.com/Sheriff-Hoti/hyprgo/pkg"
 	"github.com/spf13/cobra"
 )
@@ -22,12 +24,12 @@ var initCmd = &cobra.Command{
 			Data: nil,
 		})
 
-		if config == "" {
-			config = pkg.GetDefaultConfigPath()
+		if flag_err := errors.Join(data_err, config_err); flag_err != nil {
+			return flag_err
 		}
 
-		if data_err != nil {
-			return data_err
+		if !cmd.Flags().Changed("config") {
+			config = pkg.GetDefaultConfigPath()
 		}
 
 		kvpairmap, config_err := pkg.ReadConfigFile(config)
