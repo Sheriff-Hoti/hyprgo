@@ -1,14 +1,19 @@
 package pkg
 
 import (
-	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 )
+
+type Config struct {
+	Backend       string `json:"backend"`
+	Wallpaper_dir string `json:"wallpaper_dir"`
+	Data_dir      string `json:"data_dir"`
+}
 
 func GetWallpapers(dir string) (filenames []string, erro error) {
 	entries, err := os.ReadDir(dir)
@@ -34,7 +39,7 @@ func GetWallpapers(dir string) (filenames []string, erro error) {
 	return file_names, nil
 }
 
-func ReadConfigFile(config_path string) (map[string]string, error) {
+func ReadConfigFile(config_path string) (*Config, error) {
 
 	if _, err := os.Stat(config_path); errors.Is(err, os.ErrNotExist) {
 		// path/to/whatever does not exist and if it does not exists just return the defaults
@@ -49,46 +54,14 @@ func ReadConfigFile(config_path string) (map[string]string, error) {
 
 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
+	var config Config
 
-	kvpairmap := make(map[string]string, 0)
+	decoder := json.NewDecoder(file)
 
-	for scanner.Scan() {
-		key, val, err := ExtractKVPair(scanner.Text())
-		if err != nil {
-			log.Println(err)
-		} else {
-			kvpairmap[key] = val
-		}
-
-	}
-
-	if err := scanner.Err(); err != nil {
+	if err := decoder.Decode(&config); err != nil {
 		return nil, err
 	}
-
-	return kvpairmap, nil
-
-	// this method vill return a valid kv pair
-}
-
-func ExtractKVPair(line string) (string, string, error) {
-	split := strings.Split(line, "=")
-	if len(split) != 2 {
-		return "", "", errors.New("it should be 2")
-	}
-	key := strings.Trim(split[0], " ")
-	value := strings.Trim(split[1], " ")
-
-	if key == "" {
-		return "", "", errors.New("key must not be empty")
-	}
-
-	if value == "" {
-		return "", "", errors.New("value must not be empty")
-	}
-
-	return key, value, nil
+	return &config, nil
 }
 
 func GetDefaultConfigPath() string {
@@ -102,11 +75,12 @@ func GetDefaultConfigPath() string {
 
 }
 
-func GetDefaultConfigVals() map[string]string {
-	return map[string]string{
-		"backend":       "swaync",
-		"wallpaper_dir": os.ExpandEnv("$HOME"),
-		"data_dir":      GetDefaultDataPath(),
+func GetDefaultConfigVals() *Config {
+
+	return &Config{
+		Backend:       "swaync",
+		Wallpaper_dir: os.ExpandEnv("$HOME"),
+		Data_dir:      GetDefaultDataPath(),
 	}
 }
 

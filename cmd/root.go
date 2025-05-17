@@ -32,24 +32,24 @@ well well well, the design is inspired by wallrizz".`,
 		}
 
 		//TODO need to change this so the config dir to be configurable
-		kvpairmap, kvpairmap_err := pkg.ReadConfigFile(config)
+		cc, cc_err := pkg.ReadConfigFile(config)
 
-		if kvpairmap_err != nil {
-			return kvpairmap_err
+		if cc_err != nil {
+			return cc_err
 		}
 
-		if backend != "" {
-			kvpairmap["backend"] = backend
+		if cmd.Flags().Changed("backend") {
+			cc.Backend = backend
 		}
 
-		if dir != "" {
-			kvpairmap["wallpaper_dir"] = dir
+		if cmd.Flags().Changed("dir") {
+			cc.Wallpaper_dir = dir
 		}
 
-		wp_backend := pkg.InitBackend(kvpairmap)
+		wp_backend := pkg.InitBackend(cc)
 
 		//TODO make this more dynamic
-		filenames, filenames_error := pkg.GetWallpapers(kvpairmap["wallpaper_dir"])
+		filenames, filenames_error := pkg.GetWallpapers(cc.Wallpaper_dir)
 
 		if filenames_error != nil {
 			return filenames_error
