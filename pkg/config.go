@@ -16,7 +16,7 @@ type Config struct {
 }
 
 func GetWallpapers(dir string) (filenames []string, erro error) {
-	entries, err := os.ReadDir(dir)
+	entries, err := os.ReadDir(os.ExpandEnv(dir))
 	if err != nil {
 		return nil, err
 	}
