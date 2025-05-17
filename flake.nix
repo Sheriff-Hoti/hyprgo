@@ -99,6 +99,9 @@
           ...
         }:
         with lib;
+        let
+          jsonFormat = pkgs.formats.json { };
+        in
         {
           options.programs.hyprgo = {
             enable = mkEnableOption "hyprgo enable";
@@ -110,7 +113,7 @@
             };
 
             settings = mkOption {
-              type = jsonFormat.type;
+              type = lib.types.nullOr jsonFormat.type;
               default = null;
               description = "JSON configuration settings for hyprgo";
               example = {
