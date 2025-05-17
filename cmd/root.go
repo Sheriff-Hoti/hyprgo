@@ -27,7 +27,7 @@ well well well, the design is inspired by wallrizz".`,
 			return flag_err
 		}
 
-		if config == "" {
+		if !cmd.Flags().Changed("config") {
 			config = pkg.GetDefaultConfigPath()
 		}
 
