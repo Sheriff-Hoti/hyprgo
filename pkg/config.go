@@ -69,9 +69,9 @@ func GetDefaultConfigPath() string {
 	home := "HOME"
 
 	if _, ok := os.LookupEnv(xdg_config_home); ok {
-		return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", xdg_config_home), "hyprgo.conf"))
+		return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", xdg_config_home), "hyprgo", "config.json"))
 	}
-	return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", home), ".config", "hyprgo.conf"))
+	return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", home), ".config", "hyprgo", "config.json"))
 
 }
 
