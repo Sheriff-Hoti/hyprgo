@@ -98,16 +98,19 @@ func init() {
 
 func RenderImages(filenames []string) {
 	for idx, filename := range filenames {
-		pkg.IcatCmdHalder(pkg.ICatOptions{
-			Place: pkg.Place{
-				Width:  consts.ICAT_IMAGE_WIDTH,
-				Height: consts.ICAT_IMAGE_HEIGHT,
-				Top:    consts.ICAT_IMAGE_TOP_OFFSET + ((idx / consts.CELL_COLS) * 8),
-				Left:   consts.ICAT_IMAGE_LEFT_OFFSET + ((idx % consts.CELL_COLS) * (consts.ICAT_IMAGE_WIDTH + 3)),
-			},
-			Extra_args:     []string{"--z-index=--1"},
-			Scale_up:       true,
-			Wallpaper_path: filename,
-		})
+
+		pkg.ICatCmdBuilder(
+			filename,
+			pkg.WithScaleUp(),
+			pkg.WithStdIn(false),
+			pkg.WithPlace(
+				pkg.Place{
+					Width:  consts.ICAT_IMAGE_WIDTH,
+					Height: consts.ICAT_IMAGE_HEIGHT,
+					Top:    consts.ICAT_IMAGE_TOP_OFFSET + ((idx / consts.CELL_COLS) * 8),
+					Left:   consts.ICAT_IMAGE_LEFT_OFFSET + ((idx % consts.CELL_COLS) * (consts.ICAT_IMAGE_WIDTH + 3)),
+				},
+			),
+		)
 	}
 }

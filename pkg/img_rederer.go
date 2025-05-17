@@ -1,5 +1,7 @@
 package pkg
 
+// https://www.sohamkamani.com/golang/options-pattern/
+
 import (
 	"fmt"
 	"os"
@@ -18,28 +20,59 @@ type Place struct {
 	Top    int
 }
 
-type ICatOptions struct {
-	Stdin          bool
-	Scale_up       bool
-	Place          Place
-	Extra_args     []string
-	Wallpaper_path string
+type ICatCmd struct {
+	Agregated_args []string
 }
 
-func IcatCmdHalder(options ICatOptions) {
-	stdin := "--stdin=no"
-	scale_up := ""
-	place := fmt.Sprintf("--place=%vx%v@%vx%v", options.Place.Width, options.Place.Height, options.Place.Left, options.Place.Top)
-	if options.Stdin {
-		stdin = "--stdin=yes"
+type ICatOption func(*ICatCmd)
+
+func WithStdIn(yes bool) ICatOption {
+	return func(ic *ICatCmd) {
+		if yes {
+			ic.Agregated_args = append(ic.Agregated_args, "--stdin=yes")
+		} else {
+			ic.Agregated_args = append(ic.Agregated_args, "--stdin=no")
+		}
 	}
-	if options.Scale_up {
-		scale_up = "--scale-up"
+}
+
+func WithScaleUp() ICatOption {
+	return func(ic *ICatCmd) {
+		ic.Agregated_args = append(ic.Agregated_args, "--scale-up")
+	}
+}
+
+func WithPlace(place Place) ICatOption {
+	return func(ic *ICatCmd) {
+		ic.Agregated_args = append(ic.Agregated_args, fmt.Sprintf("--place=%vx%v@%vx%v", place.Width, place.Height, place.Left, place.Top))
+	}
+}
+
+func WithExtraArgs(args ...string) ICatOption {
+	return func(ic *ICatCmd) {
+		ic.Agregated_args = append(ic.Agregated_args, args...)
+	}
+}
+
+func withWallpaperPath(path string) ICatOption {
+	return func(ic *ICatCmd) {
+		ic.Agregated_args = append(ic.Agregated_args, path)
+	}
+}
+
+func ICatCmdBuilder(path string, opts ...ICatOption) {
+
+	cmdArgs := &ICatCmd{
+		Agregated_args: []string{icat_cmd},
 	}
 
-	fullArgs := append([]string{icat_cmd, stdin, scale_up, place}, options.Extra_args...)
+	for _, opt := range opts {
+		opt(cmdArgs)
+	}
 
-	cmd := exec.Command(base_cmd, append(fullArgs, options.Wallpaper_path)...)
+	withWallpaperPath(path)(cmdArgs)
+
+	cmd := exec.Command(base_cmd, cmdArgs.Agregated_args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
