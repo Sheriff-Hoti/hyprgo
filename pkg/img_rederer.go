@@ -54,13 +54,29 @@ func WithExtraArgs(args ...string) ICatOption {
 	}
 }
 
-func withWallpaperPath(path string) ICatOption {
+func WithWallpaperPath(path string) ICatOption {
 	return func(ic *ICatCmd) {
 		ic.Agregated_args = append(ic.Agregated_args, path)
 	}
 }
 
-func ICatCmdBuilder(path string, opts ...ICatOption) {
+func WithImageID(id int) ICatOption {
+	return func(ic *ICatCmd) {
+		ic.Agregated_args = append(ic.Agregated_args, fmt.Sprintf("--image-id=%v", id))
+	}
+}
+
+func WithClear(yes bool) ICatOption {
+	return func(ic *ICatCmd) {
+		if yes {
+			ic.Agregated_args = append(ic.Agregated_args, "--clear=yes")
+		} else {
+			ic.Agregated_args = append(ic.Agregated_args, "--clear=no")
+		}
+	}
+}
+
+func ICatCmdBuilder(opts ...ICatOption) {
 
 	cmdArgs := &ICatCmd{
 		Agregated_args: []string{icat_cmd},
@@ -69,8 +85,6 @@ func ICatCmdBuilder(path string, opts ...ICatOption) {
 	for _, opt := range opts {
 		opt(cmdArgs)
 	}
-
-	withWallpaperPath(path)(cmdArgs)
 
 	cmd := exec.Command(base_cmd, cmdArgs.Agregated_args...)
 	cmd.Stdout = os.Stdout

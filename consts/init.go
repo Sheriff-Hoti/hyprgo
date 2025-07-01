@@ -10,4 +10,5 @@ const (
 	CELL_COLS              = 4
 	WALLPAPER_DIR          = "./img"
 	CONFIG_PATH            = ".config/hyprgo.conf"
+	ITEMS_PER_PAGE         = 16
 )

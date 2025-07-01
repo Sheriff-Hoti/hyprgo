@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Sheriff-Hoti/hyprgo/consts"
+	"github.com/Sheriff-Hoti/hyprgo/icat"
 	"github.com/Sheriff-Hoti/hyprgo/pkg"
 	"github.com/Sheriff-Hoti/hyprgo/tui"
 	tea "github.com/charmbracelet/bubbletea"
@@ -60,11 +60,11 @@ well well well, the design is inspired by wallrizz".`,
 		// 	return errors.New("no wallpapers in this directory")
 		// }
 
-		RenderImages(filenames)
+		// RenderImages(filenames)
 
 		fmt.Print("\033[H")
 
-		p := tea.NewProgram(tui.InitialModel(filenames, 0, func(t int) {
+		p := tea.NewProgram(tui.InitialModel(filenames, 0, 0, func(t int) {
 			wp_backend.SetImage(filenames[t])
 			pkg.DataContent(pkg.DataAction{
 				Mode: pkg.Write,
@@ -73,7 +73,11 @@ well well well, the design is inspired by wallrizz".`,
 				},
 			})
 
-		}))
+		}, func(s []string) {
+			icat.RenderImages(s)
+			// pkg.ICatCmdBuilder(pkg.WithStdIn(false), pkg.WithClear(false), pkg.WithWallpaperPath(""))
+		}),
+		)
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			return err
@@ -94,23 +98,4 @@ func init() {
 	rootCmd.PersistentFlags().StringP("config", "c", "", "specify the config file")
 	rootCmd.Flags().StringP("dir", "d", "", "specify the wallpaper directory")
 	rootCmd.Flags().StringP("backend", "b", "", "specify the wallpaper backend")
-}
-
-func RenderImages(filenames []string) {
-	for idx, filename := range filenames {
-
-		pkg.ICatCmdBuilder(
-			filename,
-			pkg.WithScaleUp(),
-			pkg.WithStdIn(false),
-			pkg.WithPlace(
-				pkg.Place{
-					Width:  consts.ICAT_IMAGE_WIDTH,
-					Height: consts.ICAT_IMAGE_HEIGHT,
-					Top:    consts.ICAT_IMAGE_TOP_OFFSET + ((idx / consts.CELL_COLS) * 8),
-					Left:   consts.ICAT_IMAGE_LEFT_OFFSET + ((idx % consts.CELL_COLS) * (consts.ICAT_IMAGE_WIDTH + 3)),
-				},
-			),
-		)
-	}
 }
