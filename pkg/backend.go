@@ -3,6 +3,8 @@ package pkg
 import (
 	"os/exec"
 	"syscall"
+
+	"github.com/Sheriff-Hoti/hyprgo/config"
 )
 
 type WallpaperBackend interface {
@@ -45,7 +47,7 @@ func (s *SwayBg) IsInstalled() bool {
 	return true
 }
 
-func InitBackend(*Config) WallpaperBackend {
+func InitBackend(*config.Config) WallpaperBackend {
 	//TODO prolly here a backend validator func
 	return &SwayBg{}
 }

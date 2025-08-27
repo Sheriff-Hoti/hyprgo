@@ -1,10 +1,12 @@
-package pkg
+package config_test
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/Sheriff-Hoti/hyprgo/config"
 )
 
 func TestGetDefaultConfigPath(t *testing.T) {
@@ -13,7 +15,7 @@ func TestGetDefaultConfigPath(t *testing.T) {
 		t.Setenv("HOME", "/home/fallback") // even if both are set, XDG_CONFIG_HOME should take precedence
 
 		expected := filepath.Join("/home/testuser", "hyprgo", "config.json")
-		got := GetDefaultConfigPath()
+		got := config.GetDefaultConfigPath()
 		if got != expected {
 			t.Errorf("expected %s, got %s", expected, got)
 		}
@@ -24,7 +26,7 @@ func TestGetDefaultConfigPath(t *testing.T) {
 		_ = os.Unsetenv("XDG_CONFIG_HOME")
 
 		expected := filepath.Join("/home/testuser", ".config", "hyprgo", "config.json")
-		got := GetDefaultConfigPath()
+		got := config.GetDefaultConfigPath()
 		if got != expected {
 			t.Errorf("expected %s, got %s", expected, got)
 		}
@@ -33,7 +35,7 @@ func TestGetDefaultConfigPath(t *testing.T) {
 
 func TestGetWallpapers(t *testing.T) {
 	t.Run("Print wallpapers", func(t *testing.T) {
-		fmt.Println(GetWallpapers("/home/personal"))
+		fmt.Println(config.GetWallpapers("/home/personal"))
 	})
 
 }

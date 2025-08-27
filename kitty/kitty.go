@@ -235,3 +235,25 @@ func KittyWriteFiles(out io.Writer, fileNames []string, grid KittyGridOpts) erro
 }
 
 // check this:https://chatgpt.com/share/68ae4268-106c-8007-bcb5-16476f778c24
+
+// start := time.Now()
+// 	err := kitty.KittyWriteFiles(os.Stdout, []string{
+// 		"./test_assets/img/test0.jpg",
+// 		"./test_assets/img/test1.jpg",
+// 		"./test_assets/img/test2.jpg",
+// 		"./test_assets/img/test3.jpg",
+// 		"./test_assets/img/test4.jpg",
+// 		"./test_assets/img/test5.png",
+// 	}, kitty.KittyGridOpts{
+// 		Cols:        3,
+// 		Rows:        3,
+// 		RowsSpacing: 5,
+// 		ColsSpacing: 5,
+// 		ImgWidth:    consts.ICAT_IMAGE_WIDTH,
+// 		ImgHeight:   consts.ICAT_IMAGE_HEIGHT,
+// 	})
+
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	fmt.Fprintf(os.Stderr, "\nRendered images in %v\n", time.Since(start).Seconds())

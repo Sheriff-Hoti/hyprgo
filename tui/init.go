@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/Sheriff-Hoti/hyprgo/consts"
-	"github.com/Sheriff-Hoti/hyprgo/icat"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -64,8 +63,6 @@ func InitialModel(choices []string, selected int, page int, callback func(t int)
 
 func (m model) Init() tea.Cmd {
 	// Just return `nil`, which means "no I/O right now, please."
-	icat.RenderImages(m.paginatedChoices)
-	fmt.Print("\033[H")
 
 	return nil
 }

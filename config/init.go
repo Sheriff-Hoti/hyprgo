@@ -1,12 +1,13 @@
-package pkg
+package config
 
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/Sheriff-Hoti/hyprgo/data"
 )
 
 type Config struct {
@@ -40,10 +41,12 @@ func GetWallpapers(dir string) (filenames []string, erro error) {
 
 func ReadConfigFile(config_path string) (*Config, error) {
 
+	config := GetDefaultConfigVals()
+
 	if _, err := os.Stat(config_path); errors.Is(err, os.ErrNotExist) {
 		// path/to/whatever does not exist and if it does not exists just return the defaults
 
-		return GetDefaultConfigVals(), nil
+		return config, nil
 	}
 
 	file, err := os.Open(config_path)
@@ -53,37 +56,38 @@ func ReadConfigFile(config_path string) (*Config, error) {
 
 	defer file.Close()
 
-	var config Config
-
 	decoder := json.NewDecoder(file)
 
-	if err := decoder.Decode(&config); err != nil {
+	if err := decoder.Decode(config); err != nil {
 		return nil, err
 	}
-	return &config, nil
+	return config, nil
 }
 
 func GetDefaultConfigPath() string {
-	xdg_config_home := "XDG_CONFIG_HOME"
-	home := "HOME"
+	const (
+		xdgConfigHome = "XDG_CONFIG_HOME"
+	)
 
-	if _, ok := os.LookupEnv(xdg_config_home); ok {
-		return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", xdg_config_home), "hyprgo", "config.json"))
+	if val, ok := os.LookupEnv(xdgConfigHome); ok {
+		return filepath.Join(val, "hyprgo", "config.json")
 	}
-	return os.ExpandEnv(filepath.Join(fmt.Sprintf("$%v", home), ".config", "hyprgo", "config.json"))
 
+	// fallback to $HOME/.config/hyprgo/config.json
+	home, err := os.UserHomeDir()
+	if err != nil {
+		// if home can't be resolved, fallback to current working directory
+		return filepath.Join(".", "config.json")
+	}
+
+	return filepath.Join(home, ".config", "hyprgo", "config.json")
 }
 
 func GetDefaultConfigVals() *Config {
 
 	return &Config{
-		Backend:       "swaync",
-		Wallpaper_dir: os.ExpandEnv("$HOME"),
-		Data_dir:      GetDefaultDataPath(),
+		Backend:       "swaybg",
+		Wallpaper_dir: "",
+		Data_dir:      data.GetDefaultDataPath(),
 	}
 }
-
-// after this it will be ging to other validator metho
-// first the default config and then each config function will get
-// the map value and pull their own key
-// also add a map func i guess ??
