@@ -8,11 +8,22 @@ import (
 	"image"
 	"image/png"
 	"io"
+	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 // See https://sw.kovidgoyal.net/kitty/graphics-protocol.html for more details.
+
+type KittyGridOpts struct {
+	Cols        int // display width in terminal columns
+	Rows        int // display height in terminal rows
+	RowsSpacing int // spacing between rows in terminal rows
+	ColsSpacing int // spacing between columns in terminal columns
+	ImgWidth    int // image width in pixels
+	ImgHeight   int // image height in pixels
+}
 
 const (
 	KITTY_IMG_HDR = "\x1b_G"
@@ -41,17 +52,17 @@ func (o KittyImgOpts) ToHeader(opts ...string) string {
 		code rune
 	}
 	sFld := []fldmap{
-		fldmap{&o.SrcX, 'x'},
-		fldmap{&o.SrcY, 'y'},
-		fldmap{&o.SrcWidth, 'w'},
-		fldmap{&o.SrcHeight, 'h'},
-		fldmap{&o.CellOffsetX, 'X'},
-		fldmap{&o.CellOffsetY, 'Y'},
-		fldmap{&o.DstCols, 'c'},
-		fldmap{&o.DstRows, 'r'},
-		fldmap{&o.ImageId, 'i'},
-		fldmap{&o.ImageNo, 'I'},
-		fldmap{&o.PlacementId, 'p'},
+		{&o.SrcX, 'x'},
+		{&o.SrcY, 'y'},
+		{&o.SrcWidth, 'w'},
+		{&o.SrcHeight, 'h'},
+		{&o.CellOffsetX, 'X'},
+		{&o.CellOffsetY, 'Y'},
+		{&o.DstCols, 'c'},
+		{&o.DstRows, 'r'},
+		{&o.ImageId, 'i'},
+		{&o.ImageNo, 'I'},
+		{&o.PlacementId, 'p'},
 	}
 
 	for _, f := range sFld {
@@ -150,3 +161,77 @@ func GetEnvIdentifiers() map[string]string {
 func lcaseEnv(k string) string {
 	return strings.ToLower(strings.TrimSpace(os.Getenv(k)))
 }
+
+func KittyWriteFileGPTGENERATED(out io.Writer, fileName string, opts KittyImgOpts) error {
+	// Check absolute path
+	if !strings.HasPrefix(fileName, "/") {
+		return fmt.Errorf("file path must be absolute: %s", fileName)
+	}
+
+	// Check if file exists
+	if _, err := os.Stat(fileName); err != nil {
+		return fmt.Errorf("cannot access file: %w", err)
+	}
+
+	// Build the Kitty header
+	header := opts.ToHeader("a=T", "f=100", "t=f")
+
+	// Write header
+	if _, err := fmt.Fprint(out, header); err != nil {
+		return err
+	}
+
+	// Encode the absolute path in base64 (required by Kitty)
+	enc64 := base64.NewEncoder(base64.StdEncoding, out)
+	if _, err := fmt.Fprint(enc64, fileName); err != nil {
+		return err
+	}
+	if err := enc64.Close(); err != nil {
+		return err
+	}
+
+	// Write the terminal escape sequence to finish
+	if _, err := fmt.Fprint(out, KITTY_IMG_FTR); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func KittyWriteFiles(out io.Writer, fileNames []string, grid KittyGridOpts) error {
+	if grid.Cols <= 0 {
+		return fmt.Errorf("grid.Cols must be > 0")
+	}
+
+	for idx, fileName := range fileNames {
+
+		col := idx % grid.Cols
+		row := idx / grid.Cols
+
+		if grid.Rows > 0 && row >= grid.Rows {
+			return nil
+		}
+
+		log.Println(col, row, idx)
+
+		fmt.Fprintf(out, "\x1b[%d;%dH", (col*grid.ImgHeight)+(grid.ColsSpacing*(col+1)), (row*grid.ImgWidth)+(grid.RowsSpacing*(row+1)))
+
+		absfile, err := filepath.Abs(fileName)
+		if err != nil {
+			return err
+		}
+
+		if err := KittyWriteFileGPTGENERATED(out, absfile, KittyImgOpts{
+			DstCols:     uint32(grid.ImgWidth),  // display width in terminal columns
+			DstRows:     uint32(grid.ImgHeight), // display height in terminal rows
+			CellOffsetX: 0,                      // anchor at the cell, don't use pixel offsets here
+			CellOffsetY: 0,
+		}); err != nil {
+			return err
+		}
+
+	}
+	return nil
+}
+
+// check this:https://chatgpt.com/share/68ae4268-106c-8007-bcb5-16476f778c24

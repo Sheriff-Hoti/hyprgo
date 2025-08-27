@@ -62,7 +62,7 @@ well well well, the design is inspired by wallrizz".`,
 
 		// RenderImages(filenames)
 
-		fmt.Print("\033[H")
+		// fmt.Print("\033[H")
 
 		p := tea.NewProgram(tui.InitialModel(filenames, 0, 0, func(t int) {
 			wp_backend.SetImage(filenames[t])
@@ -77,6 +77,7 @@ well well well, the design is inspired by wallrizz".`,
 			icat.RenderImages(s)
 			// pkg.ICatCmdBuilder(pkg.WithStdIn(false), pkg.WithClear(false), pkg.WithWallpaperPath(""))
 		}),
+			tea.WithAltScreen(),
 		)
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
