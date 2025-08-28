@@ -3,7 +3,6 @@ package data
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -45,17 +44,14 @@ func ReadDataFile(data_path string) (*Data, error) {
 	}
 	defer file.Close()
 
-	log.Print("wellllll")
 	// If the file is empty, return nil
 	stat, err := file.Stat()
 	if err != nil {
 		return nil, fmt.Errorf("stat file: %w", err)
 	}
 	if stat.Size() == 0 {
-		return nil, nil
+		return &Data{}, nil
 	}
-	log.Print("wellllll")
-
 	// Decode JSON into Data
 	var data Data
 	decoder := json.NewDecoder(file)
