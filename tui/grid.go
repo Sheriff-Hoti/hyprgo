@@ -16,9 +16,6 @@ type Grid struct {
 	keys          *listKeyMap
 	columns       uint32
 	rows          uint32
-	row_spacing   int
-	col_spacing   int
-	padding       int
 	cell_style    lipgloss.Style
 }
 
@@ -34,8 +31,6 @@ func NewGrid(files []string, selected_file string, init_term_width int, init_ter
 		keys:         newListKeyMap(),
 		columns:      3,
 		rows:         3,
-		row_spacing:  1,
-		col_spacing:  1,
 		cell_style: lipgloss.
 			NewStyle().
 			Border(lipgloss.NormalBorder()).
@@ -63,8 +58,6 @@ func (g *Grid) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (g *Grid) View() string {
 
-	// return fmt.Sprint("Grid dims:", g.windowWidth, "x", g.windowHeight)
-
 	rowsCount := 4
 	colsCount := 4
 
@@ -75,15 +68,14 @@ func (g *Grid) View() string {
 		colsCount = 1
 	}
 
-	cellWidth := (g.windowWidth - (colsCount*2)*g.col_spacing) / colsCount
-	cellHeight := (g.windowHeight - (rowsCount*2)*g.row_spacing) / rowsCount
+	cellWidth := g.windowWidth / colsCount
+	cellHeight := g.windowHeight / rowsCount
 
 	cellStyle := lipgloss.NewStyle().
 		Border(lipgloss.NormalBorder()).
 		Width(cellWidth-2).
 		Height(cellHeight-2).
-		Align(lipgloss.Center, lipgloss.Center).
-		Margin(g.row_spacing, g.col_spacing)
+		Align(lipgloss.Center, lipgloss.Center)
 
 	// Create cells
 	cells := make([]string, rowsCount*colsCount)
@@ -104,9 +96,9 @@ func (g *Grid) View() string {
 
 	// Grid-level style
 	gridStyle := lipgloss.NewStyle().
-		// Padding(4, 8). // top/bottom, left/right
-		// Margin(10, 10). // space outside the grid
-		Align(lipgloss.Center, lipgloss.Center).Padding(2)
+		Height(g.windowHeight).
+		Width(g.windowWidth).
+		Align(lipgloss.Center, lipgloss.Center)
 
 	return gridStyle.Render(grid)
 }
