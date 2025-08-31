@@ -46,9 +46,11 @@ func main() {
 		log.Fatal("Error trying to get wallpapers:", err)
 	}
 
-	width, height, _ := term.GetSize(int(os.Stdout.Fd()))
+	width, height, err := term.GetSize(int(os.Stdout.Fd()))
 
-	fmt.Print("Width:", width, "Height:", height, "\n")
+	if err != nil {
+		log.Fatal("Error trying to get terminal size:", err)
+	}
 
 	p := tea.NewProgram(
 		tui.NewGrid(files, data.Current_wallpaper, width, height), tea.WithAltScreen())

@@ -8,7 +8,6 @@ import (
 	"image"
 	"image/png"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,6 +20,8 @@ type KittyGridOpts struct {
 	Rows        int // display height in terminal rows
 	RowsSpacing int // spacing between rows in terminal rows
 	ColsSpacing int // spacing between columns in terminal columns
+	TopSpacing  int // spacing at top and bottom in terminal rows
+	LeftSpacing int // spacing at left and right in terminal columns
 	ImgWidth    int // image width in pixels
 	ImgHeight   int // image height in pixels
 }
@@ -162,7 +163,16 @@ func lcaseEnv(k string) string {
 	return strings.ToLower(strings.TrimSpace(os.Getenv(k)))
 }
 
-func KittyWriteFileGPTGENERATED(out io.Writer, fileName string, opts KittyImgOpts) error {
+type WriteFileResult struct {
+	Filename    string
+	AbsFilename string
+	Width       uint32
+	Height      uint32
+	RowCell     uint32
+	ColCell     uint32
+}
+
+func KittyWriteFile(out io.Writer, fileName string, opts KittyImgOpts) error {
 	// Check absolute path
 	if !strings.HasPrefix(fileName, "/") {
 		return fmt.Errorf("file path must be absolute: %s", fileName)
@@ -198,62 +208,39 @@ func KittyWriteFileGPTGENERATED(out io.Writer, fileName string, opts KittyImgOpt
 	return nil
 }
 
-func KittyWriteFiles(out io.Writer, fileNames []string, grid KittyGridOpts) error {
+func KittyWriteFiles(out io.Writer, fileNames []string, grid KittyGridOpts) ([]WriteFileResult, error) {
+	result := make([]WriteFileResult, 0, len(fileNames))
 	if grid.Cols <= 0 {
-		return fmt.Errorf("grid.Cols must be > 0")
+		return nil, fmt.Errorf("grid.Cols must be > 0")
 	}
+	for row_idx := range grid.Rows {
+		for col_idx := range grid.Cols {
+			row_cell := (row_idx * grid.ImgHeight) + grid.TopSpacing + (grid.RowsSpacing * row_idx)
+			col_cell := (col_idx * grid.ImgWidth) + grid.LeftSpacing + (grid.ColsSpacing * col_idx)
+			fmt.Fprintf(out, "\x1b[%d;%dH", row_cell, col_cell)
+			absfile, err := filepath.Abs(fileNames[row_idx+col_idx])
 
-	for idx, fileName := range fileNames {
+			if err != nil {
+				return nil, err
+			}
 
-		col := idx % grid.Cols
-		row := idx / grid.Cols
-
-		if grid.Rows > 0 && row >= grid.Rows {
-			return nil
+			KittyWriteFile(out, absfile, KittyImgOpts{
+				DstCols:     uint32(grid.ImgWidth),  // display width in terminal columns
+				DstRows:     uint32(grid.ImgHeight), // display height in terminal rows
+				CellOffsetX: 0,                      // anchor at the cell, don't use pixel offsets here
+				CellOffsetY: 0,
+			})
+			result = append(result, WriteFileResult{
+				Filename:    fileNames[row_idx+col_idx],
+				AbsFilename: absfile,
+				Width:       uint32(grid.ImgWidth),
+				Height:      uint32(grid.ImgHeight),
+				RowCell:     uint32(row_cell),
+				ColCell:     uint32(col_cell),
+			})
 		}
-
-		log.Println(col, row, idx)
-
-		fmt.Fprintf(out, "\x1b[%d;%dH", (col*grid.ImgHeight)+(grid.ColsSpacing*(col+1)), (row*grid.ImgWidth)+(grid.RowsSpacing*(row+1)))
-
-		absfile, err := filepath.Abs(fileName)
-		if err != nil {
-			return err
-		}
-
-		if err := KittyWriteFileGPTGENERATED(out, absfile, KittyImgOpts{
-			DstCols:     uint32(grid.ImgWidth),  // display width in terminal columns
-			DstRows:     uint32(grid.ImgHeight), // display height in terminal rows
-			CellOffsetX: 0,                      // anchor at the cell, don't use pixel offsets here
-			CellOffsetY: 0,
-		}); err != nil {
-			return err
-		}
-
 	}
-	return nil
+	return result, nil
 }
 
 // check this:https://chatgpt.com/share/68ae4268-106c-8007-bcb5-16476f778c24
-
-// start := time.Now()
-// 	err := kitty.KittyWriteFiles(os.Stdout, []string{
-// 		"./test_assets/img/test0.jpg",
-// 		"./test_assets/img/test1.jpg",
-// 		"./test_assets/img/test2.jpg",
-// 		"./test_assets/img/test3.jpg",
-// 		"./test_assets/img/test4.jpg",
-// 		"./test_assets/img/test5.png",
-// 	}, kitty.KittyGridOpts{
-// 		Cols:        3,
-// 		Rows:        3,
-// 		RowsSpacing: 5,
-// 		ColsSpacing: 5,
-// 		ImgWidth:    consts.ICAT_IMAGE_WIDTH,
-// 		ImgHeight:   consts.ICAT_IMAGE_HEIGHT,
-// 	})
-
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Fprintf(os.Stderr, "\nRendered images in %v\n", time.Since(start).Seconds())

@@ -2,7 +2,9 @@ package tui
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/Sheriff-Hoti/hyprgo/kitty"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -17,9 +19,46 @@ type Grid struct {
 	columns       uint32
 	rows          uint32
 	cell_style    lipgloss.Style
+	cells         []kitty.WriteFileResult
 }
 
 func (g *Grid) Init() tea.Cmd {
+
+	grid_opts := kitty.KittyGridOpts{
+		Cols:        3,
+		Rows:        3,
+		RowsSpacing: 1,
+		ColsSpacing: 1,
+		ImgWidth:    (g.windowWidth / 3) - 2,
+		ImgHeight:   (g.windowHeight / 3) - 3,
+		TopSpacing:  2,
+		LeftSpacing: 3,
+	}
+
+	res, err := kitty.KittyWriteFiles(os.Stdout, []string{
+		"./test_assets/img/test0.jpg",
+		"./test_assets/img/test1.jpg",
+		"./test_assets/img/test2.jpg",
+		"./test_assets/img/test3.jpg",
+		"./test_assets/img/test4.jpg",
+		"./test_assets/img/test5.png",
+		"./test_assets/img/test5.png",
+		"./test_assets/img/test5.png",
+		"./test_assets/img/test5.png",
+		"./test_assets/img/test5.png",
+		"./test_assets/img/test5.png",
+		"./test_assets/img/test5.png",
+		"./test_assets/img/test5.png",
+		"./test_assets/img/test5.png",
+		"./test_assets/img/test5.png",
+		"./test_assets/img/test5.png",
+	}, grid_opts)
+
+	if err != nil {
+		fmt.Println("Error writing files:", err)
+	} else {
+		g.cells = res
+	}
 	return nil
 }
 
@@ -58,8 +97,10 @@ func (g *Grid) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (g *Grid) View() string {
 
-	rowsCount := 4
-	colsCount := 4
+	rowsCount := 3
+	colsCount := 3
+
+	selected_cell := g.cells[8]
 
 	if rowsCount <= 0 {
 		rowsCount = 1
@@ -67,38 +108,21 @@ func (g *Grid) View() string {
 	if colsCount <= 0 {
 		colsCount = 1
 	}
-
-	cellWidth := g.windowWidth / colsCount
-	cellHeight := g.windowHeight / rowsCount
-
-	cellStyle := lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder()).
-		Width(cellWidth-2).
-		Height(cellHeight-2).
-		Align(lipgloss.Center, lipgloss.Center)
-
-	// Create cells
-	cells := make([]string, rowsCount*colsCount)
-	for i := range rowsCount * colsCount {
-		cells[i] = cellStyle.Render(fmt.Sprintf("%d", i+1))
-	}
-
-	// Build rows
-	rows := make([]string, rowsCount)
-	for r := range rowsCount {
-		start := r * colsCount
-		end := start + colsCount
-		rows[r] = lipgloss.JoinHorizontal(lipgloss.Center, cells[start:end]...)
-	}
-
-	// Join rows vertically
-	grid := lipgloss.JoinVertical(lipgloss.Center, rows...)
-
-	// Grid-level style
-	gridStyle := lipgloss.NewStyle().
-		Height(g.windowHeight).
+	background := lipgloss.NewStyle().
 		Width(g.windowWidth).
-		Align(lipgloss.Center, lipgloss.Center)
+		Height(g.windowHeight).
+		Background(lipgloss.Color("235"))
 
-	return gridStyle.Render(grid)
+	square := lipgloss.NewStyle().
+		Width(int(selected_cell.Width)).
+		Height(int(selected_cell.Height)).
+		// Background(lipgloss.Color("12")).        // blue square
+		MarginTop(int(selected_cell.RowCell-2)). // y position
+		MarginLeft(int(selected_cell.ColCell-2)).
+		Border(lipgloss.RoundedBorder(), true).
+		Render("")
+		// x position
+	// you can also set MarginRight/MarginBottom if needed
+	return background.Render(square)
+
 }
