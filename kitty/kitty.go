@@ -174,9 +174,9 @@ type WriteFileResult struct {
 
 func KittyWriteFile(out io.Writer, fileName string, opts KittyImgOpts) error {
 	// Check absolute path
-	if !strings.HasPrefix(fileName, "/") {
-		return fmt.Errorf("file path must be absolute: %s", fileName)
-	}
+	// if !strings.HasPrefix(fileName, "/") {
+	// 	return fmt.Errorf("file path must be absolute: %s", fileName)
+	// }
 
 	// Check if file exists
 	if _, err := os.Stat(fileName); err != nil {
@@ -210,6 +210,7 @@ func KittyWriteFile(out io.Writer, fileName string, opts KittyImgOpts) error {
 
 func KittyWriteFiles(out io.Writer, fileNames []string, grid KittyGridOpts) ([]WriteFileResult, error) {
 	result := make([]WriteFileResult, 0, len(fileNames))
+	fnames_idx := 0
 	if grid.Cols <= 0 {
 		return nil, fmt.Errorf("grid.Cols must be > 0")
 	}
@@ -218,7 +219,7 @@ func KittyWriteFiles(out io.Writer, fileNames []string, grid KittyGridOpts) ([]W
 			row_cell := (row_idx * grid.ImgHeight) + grid.TopSpacing + (grid.RowsSpacing * row_idx)
 			col_cell := (col_idx * grid.ImgWidth) + grid.LeftSpacing + (grid.ColsSpacing * col_idx)
 			fmt.Fprintf(out, "\x1b[%d;%dH", row_cell, col_cell)
-			absfile, err := filepath.Abs(fileNames[row_idx+col_idx])
+			absfile, err := filepath.Abs(fileNames[fnames_idx])
 
 			if err != nil {
 				return nil, err
@@ -229,18 +230,77 @@ func KittyWriteFiles(out io.Writer, fileNames []string, grid KittyGridOpts) ([]W
 				DstRows:     uint32(grid.ImgHeight), // display height in terminal rows
 				CellOffsetX: 0,                      // anchor at the cell, don't use pixel offsets here
 				CellOffsetY: 0,
+				ImageId:     uint32(fnames_idx + 1),
+				PlacementId: uint32(fnames_idx + 1),
 			})
 			result = append(result, WriteFileResult{
-				Filename:    fileNames[row_idx+col_idx],
+				Filename:    fileNames[fnames_idx],
 				AbsFilename: absfile,
 				Width:       uint32(grid.ImgWidth),
 				Height:      uint32(grid.ImgHeight),
 				RowCell:     uint32(row_cell),
 				ColCell:     uint32(col_cell),
 			})
+
+			fnames_idx++
 		}
 	}
 	return result, nil
+}
+
+func KittyControlImage(out io.Writer, imgID int, opts KittyImgOpts, action string) error {
+	if imgID <= 0 {
+		return fmt.Errorf("invalid image ID: %d", imgID)
+	}
+
+	// Build a header that references the cached ID
+	header := opts.ToHeader(fmt.Sprintf("a=%s", action), fmt.Sprintf("i=%d", imgID))
+
+	if _, err := fmt.Fprint(out, header); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprint(out, KITTY_IMG_FTR); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func KittyDeleteImage(out io.Writer, opts KittyImgOpts) error {
+	// if imgID <= 0 {
+	// 	return fmt.Errorf("invalid image ID: %d", imgID)
+	// }
+
+	// if placementId <= 0 {
+	// 	return fmt.Errorf("invalid image ID: %d", imgID)
+	// }
+
+	// Build a header that references the cached ID
+	header := opts.ToHeader("a=d", "d=i", fmt.Sprintf("i=%d", opts.ImageId), fmt.Sprintf("p=%d", opts.PlacementId))
+
+	if _, err := fmt.Fprint(out, header); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprint(out, KITTY_IMG_FTR); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func KittyDisplayImage(out io.Writer, opts KittyImgOpts) error {
+
+	// Build a header that references the cached ID
+	header := opts.ToHeader("a=p", fmt.Sprintf("i=%d", opts.ImageId), fmt.Sprintf("p=%d", opts.PlacementId))
+
+	if _, err := fmt.Fprint(out, header); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprint(out, KITTY_IMG_FTR); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // check this:https://chatgpt.com/share/68ae4268-106c-8007-bcb5-16476f778c24

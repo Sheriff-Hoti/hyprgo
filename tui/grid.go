@@ -20,6 +20,8 @@ type Grid struct {
 	rows          uint32
 	cell_style    lipgloss.Style
 	cells         []kitty.WriteFileResult
+	cursor_cell   kitty.WriteFileResult
+	hidden        bool
 }
 
 func (g *Grid) Init() tea.Cmd {
@@ -42,16 +44,14 @@ func (g *Grid) Init() tea.Cmd {
 		"./test_assets/img/test3.jpg",
 		"./test_assets/img/test4.jpg",
 		"./test_assets/img/test5.png",
-		"./test_assets/img/test5.png",
-		"./test_assets/img/test5.png",
-		"./test_assets/img/test5.png",
-		"./test_assets/img/test5.png",
-		"./test_assets/img/test5.png",
-		"./test_assets/img/test5.png",
-		"./test_assets/img/test5.png",
-		"./test_assets/img/test5.png",
-		"./test_assets/img/test5.png",
-		"./test_assets/img/test5.png",
+		"./test_assets/img/test6.png",
+		"./test_assets/img/test7.png",
+		"./test_assets/img/test8.png",
+		"./test_assets/img/test9.png",
+		"./test_assets/img/test10.png",
+		"./test_assets/img/test11.png",
+		"./test_assets/img/test12.png",
+		"./test_assets/img/test13.png",
 	}, grid_opts)
 
 	if err != nil {
@@ -90,6 +90,67 @@ func (g *Grid) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, g.keys.quit):
 			return g, tea.Quit
+
+		case key.Matches(msg, g.keys.hide):
+			selected_cell := g.cells[5]
+			if g.hidden {
+				kitty.KittyDisplayImage(os.Stdout,
+					kitty.KittyImgOpts{
+						DstCols:     selected_cell.Width,
+						DstRows:     selected_cell.Height,
+						ImageId:     6,
+						PlacementId: 6,
+					})
+			} else {
+				kitty.KittyDeleteImage(os.Stdout, kitty.KittyImgOpts{
+					// DstCols:     1,
+					// DstRows:     1,
+					ImageId:     6,
+					PlacementId: 6,
+				})
+			}
+			g.hidden = !g.hidden
+
+			// kitty.KittyControlImage(os.Stdout, 2, kitty.KittyImgOpts{
+			// 	ZIndex: -1,
+
+			// 	PlacementId: 2,
+			// }, "p")
+			// kitty.KittyControlImage(os.Stdout, 3, kitty.KittyImgOpts{
+			// 	ZIndex: -1,
+
+			// 	PlacementId: 3,
+			// }, "p")
+			// kitty.KittyControlImage(os.Stdout, 4, kitty.KittyImgOpts{
+			// 	ZIndex:      -1,
+			// 	PlacementId: 4,
+			// }, "p")
+			// kitty.KittyControlImage(os.Stdout, 5, kitty.KittyImgOpts{
+			// 	ZIndex: -1,
+
+			// 	PlacementId: 5,
+			// }, "p")
+			// kitty.KittyControlImage(os.Stdout, 6, kitty.KittyImgOpts{
+			// 	ZIndex: -1,
+
+			// 	PlacementId: 6,
+			// }, "p")
+			// kitty.KittyControlImage(os.Stdout, 7, kitty.KittyImgOpts{
+			// 	ZIndex: -1,
+
+			// 	PlacementId: 7,
+			// }, "p")
+			// kitty.KittyControlImage(os.Stdout, 8, kitty.KittyImgOpts{
+			// 	ZIndex: -1,
+
+			// 	PlacementId: 8,
+			// }, "p")
+			// kitty.KittyControlImage(os.Stdout, 9, kitty.KittyImgOpts{
+			// 	ZIndex: -1,
+
+			// 	PlacementId: 9,
+			// }, "p")
+			return g, nil
 		}
 	}
 	return g, nil
