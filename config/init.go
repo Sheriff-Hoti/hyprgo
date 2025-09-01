@@ -16,27 +16,38 @@ type Config struct {
 	Data_dir      string `json:"data_dir"`
 }
 
-func GetWallpapers(dir string) (filenames []string, erro error) {
-	dir_env_expanded := os.ExpandEnv(dir)
-	entries, err := os.ReadDir(dir_env_expanded)
+func GetWallpapers(dir string) ([]string, error) {
+	// Expand environment variables like $HOME
+	dirEnvExpanded := os.ExpandEnv(dir)
+
+	// Get absolute path of directory
+	absDir, err := filepath.Abs(dirEnvExpanded)
 	if err != nil {
 		return nil, err
 	}
 
-	file_names := make([]string, 0, 10)
+	entries, err := os.ReadDir(absDir)
+	if err != nil {
+		return nil, err
+	}
+
+	fileNames := make([]string, 0, len(entries))
 
 	for _, entry := range entries {
 		if !entry.IsDir() {
 			ext := strings.ToLower(filepath.Ext(entry.Name()))
 			if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
-				fullPath := filepath.Join(dir_env_expanded, entry.Name())
-
-				file_names = append(file_names, fullPath)
+				fullPath := filepath.Join(absDir, entry.Name())
+				absPath, err := filepath.Abs(fullPath)
+				if err != nil {
+					return nil, err
+				}
+				fileNames = append(fileNames, absPath)
 			}
 		}
 	}
 
-	return file_names, nil
+	return fileNames, nil
 }
 
 func ReadConfigFile(config_path string) (*Config, error) {
