@@ -168,6 +168,7 @@ type Cell struct {
 	Height   uint32
 	RowCell  uint32
 	ColCell  uint32
+	Id       uint32
 }
 
 func (c *Cell) RenderImage(out io.Writer, opts KittyImgOpts) error {

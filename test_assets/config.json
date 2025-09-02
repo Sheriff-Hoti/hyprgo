@@ -1,4 +1,4 @@
 {
-    "wallpaper_dir": "$HOME/hyprgo/test_assets/img",
+    "wallpaper_dir": "$HOME/nixos-config/assets/wallpapers",
     "data_dir": "$HOME/hyprgo/test_assets/data.json"
 }
